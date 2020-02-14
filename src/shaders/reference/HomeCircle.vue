@@ -1,4 +1,3 @@
-// @flow
 <template>
   <div class="home">
     <div class="timeline">
@@ -7,9 +6,9 @@
           <span v-for="marker in method.markers" class="marker p-1 m-1"
                 :class="marker.outgoing_call ? 'marker__with-call': ''">
             {{marker.line_number}}
-<!--                        <div class="method method&#45;&#45;nested" v-if="marker.outgoing_call">-->
-<!--                          - {{marker.outgoing_call.method_name}}-->
-<!--                        </div>-->
+            <!--            <div class="method method&#45;&#45;nested" v-if="marker.outgoing_call">-->
+            <!--              - {{marker.outgoing_call.method_name}}-->
+            <!--            </div>-->
           </span>
         </div>
         <div class="method__name">
@@ -31,14 +30,10 @@
   import HelloWorld from '@/components/HelloWorld.vue'
   import {mapState} from 'vuex'
   import * as utils from '../utils'
-  import {Point, PrimitivesFactory} from '../primitives'
-  import {p} from '../utils'
   const regl2 = require('regl')
   const shader_frag = require('../shaders/simple-triangle/tri-frag.glsl')
   const shader_vert_tri = require('../shaders/simple-triangle/tri-vert.glsl')
   const shader_vert_circle = require('../shaders/circle-vert.glsl')
-  const shader_vert_tri_with_transform = require('../shaders/tri-vert-with-transform.glsl')
-  import {Screen} from '../../src/positioning'
 
   export default {
     name: 'Home',
@@ -53,6 +48,8 @@
     },
     mounted (): void {
       let canvas = this.$refs.myCanvasContainer
+
+
       this.regl = regl2({
         container: canvas
       })
@@ -88,7 +85,7 @@
       },
       createCircle() {
         let regl = this.regl
-        let countOfVertices = 125*3
+        let countOfVertices = 8*3
         return  regl({
           frag: shader_frag,
 
@@ -110,26 +107,34 @@
           count: countOfVertices
         })
       },
+      createTriangle: function (regl) {
+        return regl({
+          frag: shader_frag,
 
+          vert: shader_vert_tri,
+          // Here we define the vertex attributes for the above shader
+          attributes: {
+            // regl.buffer creates a new array buffer object
+            a_position: regl.buffer([
+              [-10, -10],   // no need to flatten nested arrays, regl automatically
+              [10, -10],    // unrolls them into a typedarray (default Float32)
+              [10, 11]
+            ])
+            // regl automatically infers sane defaults for the vertex attribute pointers
+          },
+
+          uniforms: {
+            // This defines the color of the triangle to be a dynamic variable
+            u_color: regl.prop('u_color')
+          },
+
+          // This tells regl the number of vertices to draw in this command
+          count: 3
+        })
+      },
       buttonWillClick () {
         let regl = this.regl
-        let factory = new PrimitivesFactory(regl)
-        // let screen = new
-        // let circle = this.createCircle()
-        let drawTriangle = regl(factory.createTriangle(
-          p(0, 0),
-          p(0, 1),
-          p(1, 0.8),
-        ))
-        let container = this.$refs.myCanvasContainer
-        let screen = new Screen(container.clientWidth, container.clientHeight)
-        let rectDraw = regl(factory.createRect(
-          screen.toSurfaceY(10),
-          screen.toSurfaceX(100),
-          screen.toSurfaceY(100),
-          screen.toSurfaceX(10),
-          ))
-
+        let drawTriangle = this.createTriangle(regl)
 // regl.frame() wraps requestAnimationFrame and also handles viewport changes
 //         regl.frame(({time}) => {
         // clear contents of the drawing buffer
@@ -137,23 +142,22 @@
           color: utils.rgba(0, 0, 0, 0),
           depth: 1
         })
-
-
-        // circle({
-        //   u_color: utils.rgb(0.6, 0, 0),
-        //   u_resolution:[container.clientWidth, container.clientHeight],
-        //   u_numVerts: 8*3,
-        // })
-        rectDraw({
-          u_color: utils.rgb(0.6, 0, 0)
+        let container = this.$refs.myCanvasContainer
+        let drawCircle = this.createCircle()
+        drawCircle({
+          u_color: utils.rgb(0.6, 0, 0),
+          u_resolution:[container.clientWidth, container.clientHeight],
+          u_numVerts: 8*3,
         })
-        // drawTriangle({
-        //   u_color: utils.rgb(0.1, 0.7, 0)
-        // })
-        // drawTriangle2({
-        //   u_color: utils.rgb(0.9, 0.7, 0)
-        // })
+// draw a triangle using the command defined above
+        drawTriangle({
+          u_color: utils.rgb(0.5, 0, 0)
+        })
 
+
+
+        // })
+        // regl.
       }
     },
     computed: {

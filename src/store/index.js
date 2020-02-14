@@ -21,6 +21,7 @@ class MethodCall {
   markers : Array<Marker> = []
 
   whats_up (): string {
+
   return 'typescript_blyadi = ' + this.typescript_blyadi
   }
 }
