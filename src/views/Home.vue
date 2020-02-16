@@ -1,6 +1,7 @@
 // @flow
 <template>
   <div class="home">
+
     <div class="timeline">
       <div class="method" v-for="method in timeline">
         <div class="markers">
@@ -116,18 +117,27 @@
         let factory = new PrimitivesFactory(regl)
         // let screen = new
         // let circle = this.createCircle()
-        let drawTriangle = regl(factory.createTriangle(
-          p(0, 0),
-          p(0, 1),
-          p(1, 0.8),
-        ))
+
         let container = this.$refs.myCanvasContainer
         let screen = new Screen(container.clientWidth, container.clientHeight)
+        screen.stateToConsole()
+        let left = 25
+        let width = 250
+        let height = 250
+        let right = left + width
+        let top = 10
+        let bottom = top + height
+
+        let a = screen.toSurface(p(left,top))
+        let b = screen.toSurface(p(right, top))
+        let c = screen.toSurface(p(right, bottom))
+        let d = screen.toSurface(p(left, bottom))
+        // console.table({a, b,c, d})
         let rectDraw = regl(factory.createRect(
-          screen.toSurfaceY(10),
-          screen.toSurfaceX(100),
-          screen.toSurfaceY(100),
-          screen.toSurfaceX(10),
+          a,
+          b,
+          c,
+          d,
           ))
 
 // regl.frame() wraps requestAnimationFrame and also handles viewport changes
@@ -147,6 +157,9 @@
         rectDraw({
           u_color: utils.rgb(0.6, 0, 0)
         })
+        for (let i = 0; i<=10; i++) {
+
+        }
         // drawTriangle({
         //   u_color: utils.rgb(0.1, 0.7, 0)
         // })
