@@ -31,12 +31,17 @@ class CodeFile {
   contents: string
 }
 
+class CodeEvent {
+}
+
 class MyState {
   x: string = '11'
   is_connected: boolean = false
   selected_file: CodeFile
   command_buffer: Array<Command> = []
   files: Array<CodeFile> = []
+  selected_index: number = 0
+  selected_event: CodeEvent
 }
 function getState () : MyState {
   return new MyState()
@@ -74,6 +79,9 @@ export default new Vuex.Store({
     selected_file_will_change(state: MyState, payload) {
       state.selected_file = state.files[0]
     },
+    selected_index_will_change (state: MyState, payload) {
+      state.selected_index = payload
+    }
   },
   actions: {
     load_file (context : ActionContext, payload) {
@@ -125,7 +133,17 @@ export default new Vuex.Store({
     },
     selected_file: state => {
       return state.files[0]
-    }
+    },
+    total_events: function (state : MyState) {
+      if (!state.command_buffer) {
+        return 0
+      }
+      return state.command_buffer.length
+    },
+    selected_event: state => {
+      return state.command_buffer[state.selected_index]
+    },
+
   },
   modules: {
     // code_editor: {
@@ -134,4 +152,5 @@ export default new Vuex.Store({
     //   }
     // },
   },
+  strict: true,
 })

@@ -10,6 +10,9 @@
       </div>
     </div>
     <pc-tabbed-editor></pc-tabbed-editor>
+
+    <el-slider v-model="slider_position" :show-tooltip="false" :max="total_events - 1" @input="set_selection"></el-slider>
+
     <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
 <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
     </div>
@@ -22,7 +25,7 @@
 <script>
   // @ is an alias to /src
   import HelloWorld from '@/components/HelloWorld.vue'
-  import {mapState, mapActions} from 'vuex'
+  import {mapState, mapActions, mapGetters, mapMutations} from 'vuex'
   import PcCodeViewer from './code/code-viewer.component'
   import PcTabbedEditor from './code/tabbed-editor.component'
 
@@ -36,22 +39,27 @@
     },
     data () {
       return {
-
+        slider_position: 1
       }
     },
     mounted (): void {
       this.connect()
     },
     methods: {
-      ...mapActions(['connect','load_command_buffer']),
+      ...mapActions(['connect','load_command_buffer', 'set_selected_index']),
+      ...mapMutations(['selected_index_will_change']),
       buttonWillClick() {
         this.load_command_buffer()
+      },
+      set_selection (e) {
+        this.selected_index_will_change(e)
       }
+
     },
     computed: {
+      ...mapGetters(['total_events', 'selected_event']),
       ...mapState(['x', 'is_connected'])
-    }
-    ,
+    },
   }
 </script>
 <style scoped>
