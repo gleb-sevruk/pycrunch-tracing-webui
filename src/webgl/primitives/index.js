@@ -1,5 +1,5 @@
 import * as REGL from 'regl'
-import {p} from '../utils'
+import {p} from '../../utils'
 
 // if (process.env.TEST) {
 const shader_frag = require('../shaders/simple-triangle/tri-frag.glsl')

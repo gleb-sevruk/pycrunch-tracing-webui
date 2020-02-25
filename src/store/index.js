@@ -1,70 +1,137 @@
 // @flow
 
 import Vue from 'vue'
-import Vuex from 'vuex'
+import Vuex, {ActionContext} from 'vuex'
+import io from 'socket.io-client';
+import {short} from '../views/code/short-filename'
 
 Vue.use(Vuex)
 
-class Marker {
-  // marker will have information about its method
+Array.prototype.filterInPlace = function(condition, thisArg) {
+  let j = 0;
 
-  line_number: number
-  method_context: MethodCall
-  outgoing_call: MethodCall
-  is_return : boolean
+  this.forEach((el, index) => {
+    if (condition.call(thisArg, el, index, this)) {
+      if (index !== j) {
+        this[j] = el;
+      }
+      j++;
+    }
+  })
+
+  this.length = j;
+  return this;
 }
 
-class MethodCall {
-  typescript_blyadi: string = 'sosnuli'
-  file_name : string
-  method_name : string
-  markers : Array<Marker> = []
-
-  whats_up (): string {
-
-  return 'typescript_blyadi = ' + this.typescript_blyadi
-  }
+class Command {
 }
 
-console.log((new MethodCall()).whats_up())
-
-function create_demo_data (): MethodCall {
-  let methodCall = new MethodCall()
-  methodCall.method_name = 'a'
-  methodCall.file_name = 'dermo.py'
-
-  function create_marker (line_number: number) {
-    let marker = new Marker()
-    marker.line_number = line_number
-    marker.method_context = methodCall
-    return marker
-  }
-
-
-
-  methodCall.markers.push(create_marker(1))
-  methodCall.markers.push(create_marker(2))
-  methodCall.markers.push(create_marker(3))
-  let marker_with_call = create_marker(4)
-
-  let outgoing_call =   new MethodCall()
-  outgoing_call.method_name = 'b'
-  outgoing_call.file_name = 'another_dermo.py'
-
-  marker_with_call.outgoing_call = outgoing_call
-  methodCall.markers.push(marker_with_call)
-  return methodCall
+class CodeFile {
+  filename: string
+  contents: string
 }
+
+class MyState {
+  x: string = '11'
+  is_connected: boolean = false
+  selected_file: CodeFile
+  command_buffer: Array<Command> = []
+  files: Array<CodeFile> = []
+}
+function getState () : MyState {
+  return new MyState()
+}
+
+let socket = io('http://0.0.0.0:8080')
 
 
 export default new Vuex.Store({
-  state: {
-    x: '10',
-    timeline: [
-      create_demo_data()
-    ]
+  state: getState(),
+  mutations: {
+    did_connect (state : MyState) {
+      state.is_connected = true
+    },
+    did_disconnect (state : MyState) {
+      state.is_connected = false
+    },
+    did_receive_buffer (state: MyState, payload){
+      let parse = JSON.parse(payload)
+      let x = typeof parse
+      console.log(parse)
+      state.command_buffer.length = 0
+      state.command_buffer = [...parse]
+    },
+    file_did_load(state: MyState, payload) {
+      let x = new CodeFile()
+      x.filename =  payload.filename
+      x.contents =  payload.contents
+      state.files.filterInPlace(function (_: CodeFile) {
+        return _.filename !== x.filename
+      });
+
+      state.files.push(x)
+    },
+    selected_file_will_change(state: MyState, payload) {
+      state.selected_file = state.files[0]
+    },
   },
-  mutations: {},
-  actions: {},
-  modules: {},
+  actions: {
+    load_file (context : ActionContext, payload) {
+      socket.emit('event', {action: 'load_file', file_to_load: payload.file})
+    },
+    async connect(context : ActionContext) {
+      socket.on('connect', on_connect);
+
+      async function on_connect () {
+        context.commit('did_connect')
+        console.log(socket.connected) // true
+        context.dispatch('load_command_buffer')
+
+      }
+
+      socket.on('disconnect', () => {
+        context.commit('did_disconnect')
+      });
+      socket.on('reply', (data) => {
+        context.commit('did_receive_buffer', data)
+        let files = new Set();
+
+        context.state.command_buffer.forEach(value => {
+          if (value.cursor){
+            files.add(value.cursor.file)
+          }
+        })
+
+        files.forEach(_ => context.dispatch('load_file', {file: _}))
+
+      });
+      socket.on('file_did_load', (data) => {
+        context.commit('file_did_load', data)
+        context.commit('selected_file_will_change')
+      });
+      // // socket.connect()
+      // socket.emit('event', {data:1})
+
+    },
+    load_command_buffer(context : ActionContext) {
+      socket.emit('event', {
+        action: 'load_buffer'
+      })
+    },
+  },
+  getters: {
+    short_filename: state => full => {
+      return short(full)
+    },
+    selected_file: state => {
+      return state.files[0]
+    }
+  },
+  modules: {
+    // code_editor: {
+    //   state: {
+    //     selected_file: null
+    //   }
+    // },
+  },
 })

@@ -1,5 +1,5 @@
 // @flow
-import {Point} from './primitives'
+import {Point} from './webgl/primitives'
 
 export function rgba (r: number, g: number, b: number, a: number) {
   return [

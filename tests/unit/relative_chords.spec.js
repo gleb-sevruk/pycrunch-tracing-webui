@@ -1,6 +1,6 @@
-import {Screen} from '../../src/positioning'
+import {Screen} from '../../src/webgl/positioning'
 import {shallowMount} from '@vue/test-utils'
-import {Point} from '../../src/primitives'
+import {Point} from '../../src/webgl/primitives'
 
 
 describe('Screen', () => {
