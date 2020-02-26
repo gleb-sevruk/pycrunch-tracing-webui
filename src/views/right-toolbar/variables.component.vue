@@ -3,7 +3,7 @@
     <div v-for="variable in mapping" class="row single-variable">
       <div class="col-4 text-monospace text-secondary"> {{variable.name}}:</div>
       <div class="col text-monospace"> {{variable.value}}
-      <span v-if="!variable.value" class="text-danger small">None</span></div>
+      <span v-if="variable.value === null" class="text-danger small">None</span></div>
     </div>
   </div>
 

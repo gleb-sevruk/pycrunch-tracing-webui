@@ -1,9 +1,11 @@
 <template>
-  <el-card>
+  <div  class="position-fixed elevation-02 bg-apple-gray-5 rounded  mt-3  mr-4 p-4">
     <div class="heading"><span class="text-secondary">Inspector</span></div>
-    <div class="text-monospace small">
-      <span class="text-secondary">event:</span> {{selected_event.event_name}}:{{selected_event.cursor.line}}
-    </div>
+    <a :href="'#line' + selected_event.cursor.line">
+      <div class="text-monospace small" >
+        <span class="text-secondary" >event:</span> {{selected_event.event_name}}:{{selected_event.cursor.line}}
+      </div>
+    </a>
     <hr/>
     <div class="locals">
 <!--      <span class="text-secondary">locals</span>-->
@@ -28,10 +30,16 @@
         </div>
 
       </div>
+
     </div>
     <hr>
-
-  </el-card>
+    <div class="stack">
+      Stack
+      <div v-for="stack in selected_event.stack" class="single-stack">
+          {{stack}}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>

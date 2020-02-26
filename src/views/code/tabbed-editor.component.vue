@@ -3,12 +3,12 @@
 <!--    <div v-for="file in files" class="tab-control__file" @click="setSelected(file)">-->
 <!--      {{short_filename(file.filename)}}-->
 <!--    </div>-->
-    <div class="text-secondary small">event {{selected_index + 1}} of {{total_events}} in {{selected_file.filename}}</div>
     <div class="container-fluid">
       <div class="row">
         <div class="col-6">
           <div class="file-editor">
-            <div v-for="line in lines" class="file__line" :class="line.is_selected ? 'file__line--highlighted' : ''" >
+            <div v-for="line in lines" class="file__line" :class="line.is_selected ? 'file__line--highlighted elevation-03' : ''" >
+              <a :name="'line' + line.index"/>
               <span class="file__line-number text-secondary">{{line.state}} {{line.index}}</span>
               {{line.text}}
             </div>
@@ -16,7 +16,7 @@
         </div>
         <div class="col-6">
 
-          <pc-right-toolbar></pc-right-toolbar>
+          <pc-right-toolbar v-if="is_panel_visible('widgets.inspector')"></pc-right-toolbar>
 
         </div>
       </div>
@@ -31,10 +31,11 @@
 
   export default {
     name: "pc-tabbed-editor",
-    components: {PcRightToolbar},
+    components: {
+      PcRightToolbar},
     computed: {
       ...mapState(['files', 'selected_index']),
-      ...mapGetters(['short_filename', 'selected_file', 'selected_event','total_events']),
+      ...mapGetters(['short_filename', 'selected_file', 'selected_event','total_events', 'is_panel_visible']),
       lines () {
         if (!this.selected_file) {
           return
@@ -93,8 +94,8 @@
     margin: 0 auto;
   }
   .file__line--highlighted {
-    background-color: $color-background-x2;
-
+    background: rgba(178, 228, 183, 0.6);
+    color: $color-apple-gray-5;
   }
   .file__line-number {
     display: inline-block;

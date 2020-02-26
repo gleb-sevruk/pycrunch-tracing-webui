@@ -1,0 +1,14 @@
+@import '_colors.scss';
+
+
+html, body {
+  /*rubber band scrolling surface*/
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background-color: $color-apple-gray-5;
+}
+hr {
+  background-color: $color-background-x3;
+}
