@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <el-card>
     <div class="heading"><span class="text-secondary">Inspector</span></div>
     <div class="text-monospace small">
       <span class="text-secondary">event:</span> {{selected_event.event_name}}:{{selected_event.cursor.line}}
@@ -31,7 +31,7 @@
     </div>
     <hr>
 
-  </div>
+  </el-card>
 </template>
 
 <script>

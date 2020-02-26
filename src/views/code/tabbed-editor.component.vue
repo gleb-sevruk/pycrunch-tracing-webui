@@ -9,7 +9,7 @@
         <div class="col-6">
           <div class="file-editor">
             <div v-for="line in lines" class="file__line" :class="line.is_selected ? 'file__line--highlighted' : ''" >
-              <span class="file__line-number">{{line.state}} {{line.index}}</span>
+              <span class="file__line-number text-secondary">{{line.state}} {{line.index}}</span>
               {{line.text}}
             </div>
           </div>
