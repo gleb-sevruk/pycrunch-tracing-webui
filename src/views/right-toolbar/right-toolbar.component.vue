@@ -2,7 +2,7 @@
   <div>
     <div class="heading"><span class="text-secondary">Inspector</span></div>
     <div class="text-monospace small">
-      <span class="text-secondary">event:</span> {{selected_event.event_name}}
+      <span class="text-secondary">event:</span> {{selected_event.event_name}}:{{selected_event.cursor.line}}
     </div>
     <hr/>
     <div class="locals">
@@ -16,6 +16,9 @@
         <div v-if="selected_event.event_name === 'method_exit'" class="method-exit">
           <span class="text-secondary">return arguments</span>
           <pc-variables :variables="selected_event.return_variables.variables"></pc-variables>
+          <div class="text-secondary mt-2">locals</div>
+          <pc-variables :variables="selected_event.locals.variables"></pc-variables>
+
           <!--          {{ selected_event.locals}}-->
         </div>
         <div v-if="selected_event.event_name === 'method_enter'" class="method-enter">

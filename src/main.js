@@ -6,7 +6,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 // import 'bootstrap/dist/css/bootstrap-grid.css';
 
 import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+// import 'element-ui/lib/theme-chalk/index.css';
+import 'element-theme-dark';
 
 // window.webglUtils = require('./webgl-utils')
 // require('./webgl-utils')

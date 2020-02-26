@@ -23,7 +23,13 @@ Array.prototype.filterInPlace = function(condition, thisArg) {
   return this;
 }
 
+class ExecutionCursor {
+  line: number
+  file: string
+}
+
 class Command {
+  cursor: ExecutionCursor
 }
 
 class CodeFile {
@@ -34,12 +40,22 @@ class CodeFile {
 class CodeEvent {
 }
 
+class LiveTracker {
+  sid: string
+  version: string
+  constructor (sid, version: string) {
+    this.sid = sid
+    this.version = version
+  }
+}
+
 class MyState {
   x: string = '11'
   is_connected: boolean = false
   selected_file: CodeFile
   command_buffer: Array<Command> = []
   files: Array<CodeFile> = []
+  active_trackers: Array<LiveTracker> = []
   selected_index: number = 0
   selected_event: CodeEvent
 }
@@ -58,6 +74,9 @@ export default new Vuex.Store({
     },
     did_disconnect (state : MyState) {
       state.is_connected = false
+    },
+    new_tracker_did_connect (state : MyState, data) {
+      state.active_trackers.push(new LiveTracker(data.sid, data.version))
     },
     did_receive_buffer (state: MyState, payload){
       let parse = JSON.parse(payload)
@@ -117,6 +136,21 @@ export default new Vuex.Store({
         context.commit('file_did_load', data)
         context.commit('selected_file_will_change')
       });
+
+      socket.on('front', (data) => {
+        // console.group('front event')
+        // console.table(data)
+        // console.groupEnd()
+        if (data.event_name) {
+          let e = data.event_name
+          if (e === 'new_tracker') {
+            context.commit('new_tracker_did_connect', data)
+
+
+          }
+
+        }
+      });
       // // socket.connect()
       // socket.emit('event', {data:1})
 
@@ -131,8 +165,11 @@ export default new Vuex.Store({
     short_filename: state => full => {
       return short(full)
     },
-    selected_file: state => {
-      return state.files[0]
+    selected_file: (state : MyState) => {
+      let selected_event : Command = state.command_buffer[state.selected_index]
+      if (selected_event){
+        return state.files.find((value : CodeFile) => value.filename === selected_event.cursor.file)
+      }
     },
     total_events: function (state : MyState) {
       if (!state.command_buffer) {

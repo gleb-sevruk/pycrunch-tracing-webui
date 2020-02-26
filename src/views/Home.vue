@@ -2,17 +2,14 @@
 <template>
   <div class="home">
 
-    <div class="timeline">
-      zalupa
-      x={{x}}
-      <div class="x">
-      Is connected: {{is_connected}}
-      </div>
+    <div class="">
+       {{is_connected}}
     </div>
+    <pc-client-connections></pc-client-connections>
     <pc-tabbed-editor></pc-tabbed-editor>
-
-    <el-slider v-model="slider_position" :show-tooltip="false" :max="total_events - 1" @input="set_selection"></el-slider>
-
+    <div class="fixed-bottom">
+      <el-slider v-model="slider_position" :show-tooltip="false" :max="total_events - 1" @input="set_selection"></el-slider>
+    </div>
     <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
 <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
     </div>
@@ -28,11 +25,13 @@
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex'
   import PcCodeViewer from './code/code-viewer.component'
   import PcTabbedEditor from './code/tabbed-editor.component'
+  import PcClientConnections from './widgets/client-connections.component'
 
 
   export default {
     name: 'Home',
     components: {
+      PcClientConnections,
       PcTabbedEditor,
       PcCodeViewer,
       HelloWorld

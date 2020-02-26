@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 8888",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "flow": "flow"
@@ -11,6 +11,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "core-js": "^3.6.4",
+    "element-theme-dark": "^1.0.3",
     "element-ui": "^2.13.0",
     "jquery": "^3.4.1",
     "popper.js": "^1.16.1",

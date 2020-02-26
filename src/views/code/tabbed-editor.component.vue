@@ -1,9 +1,9 @@
 <template>
   <div class="tab-control">
-    <div v-for="file in files" class="tab-control__file" @click="setSelected(file)">
-      {{short_filename(file.filename)}}
-    </div>
-    {{selected_index}}
+<!--    <div v-for="file in files" class="tab-control__file" @click="setSelected(file)">-->
+<!--      {{short_filename(file.filename)}}-->
+<!--    </div>-->
+    <div class="text-secondary small">event {{selected_index + 1}} of {{total_events}} in {{selected_file.filename}}</div>
     <div class="container-fluid">
       <div class="row">
         <div class="col-6">
@@ -14,7 +14,11 @@
             </div>
           </div>
         </div>
-        <div class="col-6"><pc-right-toolbar></pc-right-toolbar></div>
+        <div class="col-6">
+
+          <pc-right-toolbar></pc-right-toolbar>
+
+        </div>
       </div>
     </div>
 
@@ -30,7 +34,7 @@
     components: {PcRightToolbar},
     computed: {
       ...mapState(['files', 'selected_index']),
-      ...mapGetters(['short_filename', 'selected_file', 'selected_event']),
+      ...mapGetters(['short_filename', 'selected_file', 'selected_event','total_events']),
       lines () {
         if (!this.selected_file) {
           return
@@ -79,7 +83,8 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+  @import "../../styles/colors";
   .file__line {
     white-space: pre;
     font-family: monospace;
@@ -88,7 +93,7 @@
     margin: 0 auto;
   }
   .file__line--highlighted {
-    background-color: #87b1e0;
+    background-color: $color-background-x2;
 
   }
   .file__line-number {
@@ -100,7 +105,7 @@
 
   }
   .file__line:hover {
-    background-color: #c1d4e0;
+    background-color: $color-background-x1;
   }
 
   .file-editor {
