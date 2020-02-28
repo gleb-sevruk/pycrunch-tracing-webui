@@ -84,6 +84,14 @@ class UiState {
     }
   }
 
+  unignore_file (filename: string) {
+    console.log(filename)
+    let indexOf = this.file_filters.indexOf(filename)
+    if (indexOf >= 0) {
+      this.file_filters.splice(indexOf, 1)
+    }
+  }
+
   is_panel_visible (panel: string) {
     let optional: ?UiWidget = this.panels.find((_: UiWidget) => _.name === panel)
     if (optional) {
@@ -128,6 +136,9 @@ let socket = io('http://0.0.0.0:8080')
 export default new Vuex.Store({
   state: getState(),
   mutations: {
+    unignore_file (state: MyState, filename: string) {
+      state.ui.unignore_file(filename)
+    },
     ignore_current_file (state: MyState) {
       let selected_event: Command = state.command_buffer[state.selected_index]
       state.ui.ignore_file(selected_event.cursor.file)
