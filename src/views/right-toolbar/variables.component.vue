@@ -25,11 +25,11 @@
     computed: {
       mapping () {
         let vars = []
-        console.group('vars')
+        // console.group('vars')
         for(let variable_name in this.variables) {
           if (this.variables.hasOwnProperty(variable_name)) {
             let variable_value = this.variables[variable_name];
-            console.log(variable_name, variable_value)
+            // console.log(variable_name, variable_value)
             vars.push(new VariableValue(variable_name, variable_value))
 
           }

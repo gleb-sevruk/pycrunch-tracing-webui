@@ -33,9 +33,11 @@
     name: "pc-tabbed-editor",
     components: {
       PcRightToolbar},
+
     computed: {
       ...mapState(['files', 'selected_index']),
       ...mapGetters(['short_filename', 'selected_file', 'selected_event','total_events', 'is_panel_visible']),
+
       lines () {
         if (!this.selected_file) {
           return

@@ -5,6 +5,7 @@
     <el-button @click="debug_next_line" size="mini" icon="el-icon-caret-right" class="bg-apple-gray-2" title="Forward"></el-button>
     <el-button  disabled size="mini" icon="el-icon-caret-bottom" class="bg-apple-gray-2" title="Step over"></el-button>
     <pc-time-slider></pc-time-slider>
+    <el-button @click="ignore_current_file"  size="mini" icon="el-icon-view" class="bg-apple-gray-2" title="Ignore file"></el-button>
   </div>
 </template>
 
@@ -15,7 +16,8 @@
     name: "pc-toolbar-surface",
     components: {PcTimeSlider},
     methods: {
-      ...mapActions(['debug_previous_line', 'debug_next_line'])
+      ...mapActions(['debug_previous_line', 'debug_next_line']),
+      ...mapMutations(['ignore_current_file'])
     },
   }
 </script>

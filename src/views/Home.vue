@@ -1,16 +1,18 @@
 // @flow
 <template>
   <div class="home elevation-02" v-hotkey="keymap">
-
-    <div class="widgets-container sticky-top">
-
-
-    <pc-toolbar-surface v-if="is_panel_visible('toolbar.surface')"></pc-toolbar-surface>
-    <pc-status-bar v-if="is_panel_visible('main.filename')"/>
-    </div>
-    <pc-tabbed-editor ></pc-tabbed-editor>
-    <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
-<!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
+    <div class="side-by-side d-flex flex-row">
+      <pc-left-sidebar v-if="is_panel_visible('main.sidebar')"></pc-left-sidebar>
+      <div class="right-content w-100">
+        <div class="widgets-container sticky-top">
+          <pc-toolbar-surface v-if="is_panel_visible('toolbar.surface')"></pc-toolbar-surface>
+          <pc-status-bar v-if="is_panel_visible('main.filename')"/>
+        </div>
+        <pc-tabbed-editor></pc-tabbed-editor>
+        <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
+          <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,6 +26,7 @@
   import PcClientConnections from './widgets/client-connections.component'
   import PcStatusBar from './code/top-status-bar.component'
   import PcToolbarSurface from './toolbars/toolbar-surface.component'
+  import PcLeftSidebar from './left-sidebar/right.sidebar.component'
 
 
   export default {
@@ -31,7 +34,8 @@
     components: {
       PcToolbarSurface,
       PcTabbedEditor,
-      PcStatusBar
+      PcLeftSidebar,
+      PcStatusBar,
     },
     data () {
       return {
@@ -42,9 +46,9 @@
       this.connect()
     },
     methods: {
-      ...mapActions(['connect','load_command_buffer', 'set_selected_index', 'debug_previous_line', 'debug_next_line']),
+      ...mapActions(['connect', 'load_command_buffer', 'set_selected_index', 'debug_previous_line', 'debug_next_line']),
       ...mapMutations(['selected_index_will_change']),
-      buttonWillClick() {
+      buttonWillClick () {
         this.load_command_buffer()
       },
 
@@ -55,8 +59,8 @@
       ...mapState(['x', 'is_connected']),
       keymap () {
         return {
-          'left' : this.debug_previous_line,
-          'right' : this.debug_next_line,
+          'left': this.debug_previous_line,
+          'right': this.debug_next_line,
 
         }
       }

@@ -1,6 +1,10 @@
 <template>
   <div id="nav" class="elevation-03 p-2 d-flex justify-content-between">
+  <div>
+    <el-button size="mini"  icon="el-icon-more" class="mr-4" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
+
     <pc-connection-status/>
+  </div>
 <!--    <pc-client-connections></pc-client-connections>-->
 <!--    <router-link to="/">Tracing</router-link>-->
 <!--    |-->
@@ -8,24 +12,36 @@
 <!--    <router-link to="/about">-->
 <!--      link-->
 <!--    </router-link>-->
+    <div class="right-buttons">
 
-    <el-popover
+
+      <el-popover
           placement="bottom"
-          title="Widgets"
+          title="Settings"
           width="200"
           trigger="click"
           >
       <div>
+        <div>Widgets</div>
         <div>
         <el-checkbox v-model="is_filename_panel_visible">Top panel</el-checkbox>
         </div>
         <div>
         <el-checkbox v-model="is_inspector_panel_visible">Inspector</el-checkbox>
         </div>
+        <div>
+          <el-checkbox v-model="is_sidebar_panel_visible">Side Bar</el-checkbox>
+        </div>
+        <div >UI</div>
+        <div>
+          <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
+        </div>
       </div>
         <el-button size="mini" slot="reference" icon="el-icon-setting"></el-button>
       </el-popover>
 
+
+    </div>
 
   </div>
 
@@ -33,12 +49,13 @@
 
 <script>
   import PcConnectionStatus from './connection-status.component'
-  import {mapActions, mapGetters, mapMutations} from 'vuex'
+  import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
   export default {
     name: "pc-header",
     components: {PcConnectionStatus},
     computed: {
 
+      ...mapState(['tracing_sessions', 'ui']),
       ...mapGetters(['is_panel_visible']),
       is_filename_panel_visible: {
         get () {
@@ -47,9 +64,24 @@
         set (value) {
           this.will_toggle_ui_panel('main.filename')
 
-        }
+        },
+      },
+      follow_cursor: {
+        get () {
+          return this.ui.follow_cursor
+        },
+        set () {
+          this.toggle_ui_follow_cursor()
+        },
+      },
+      is_sidebar_panel_visible: {
+        get () {
+          return this.is_panel_visible('main.sidebar')
+        },
+        set (value) {
+          this.will_toggle_ui_panel('main.sidebar')
 
-
+        },
       },
       is_inspector_panel_visible : {
         get () {
@@ -64,7 +96,7 @@
 
     },
     methods: {
-      ...mapMutations(['will_toggle_ui_panel'])
+      ...mapMutations(['will_toggle_ui_panel', 'toggle_ui_follow_cursor'])
     },
   }
 </script>
