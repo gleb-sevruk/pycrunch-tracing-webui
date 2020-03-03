@@ -16,8 +16,8 @@
     name: "pc-toolbar-surface",
     components: {PcTimeSlider},
     methods: {
-      ...mapActions(['debug_previous_line', 'debug_next_line']),
-      ...mapMutations(['ignore_current_file'])
+      ...mapActions(['debug_previous_line', 'debug_next_line', 'ignore_current_file']),
+      // ...mapMutations()
     },
   }
 </script>

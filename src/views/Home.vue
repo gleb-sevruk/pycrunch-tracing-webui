@@ -9,10 +9,7 @@
           <pc-status-bar v-if="is_panel_visible('main.filename')"/>
         </div>
         <pc-tabbed-editor></pc-tabbed-editor>
-        <div class="bg-apple-gray-2 fixed-bottom">
-          Ignored files
-          <pc-ignored-files></pc-ignored-files>
-        </div>
+        <pc-ignored-files v-if="is_panel_visible('main.ignored_files')"></pc-ignored-files>
         <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
           <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
         </div>
@@ -30,7 +27,7 @@
   import PcClientConnections from './widgets/client-connections.component'
   import PcStatusBar from './code/top-status-bar.component'
   import PcToolbarSurface from './toolbars/toolbar-surface.component'
-  import PcLeftSidebar from './left-sidebar/right.sidebar.component'
+  import PcLeftSidebar from './left-sidebar/left.sidebar.component'
   import PcIgnoredFiles from './ignored-files.component'
 
 

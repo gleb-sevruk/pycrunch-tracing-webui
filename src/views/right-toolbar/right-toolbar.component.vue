@@ -12,20 +12,20 @@
       <div class="all-locals">
         <div v-if="selected_event.event_name === 'line'" class="line">
           <span class="text-secondary">locals</span>
-          <pc-variables :variables="selected_event.locals.variables"></pc-variables>
+          <pc-variables :variables="selected_event.locals"></pc-variables>
 <!--          {{ selected_event.locals}}-->
         </div>
         <div v-if="selected_event.event_name === 'method_exit'" class="method-exit">
           <span class="text-secondary">return arguments</span>
-          <pc-variables :variables="selected_event.return_variables.variables"></pc-variables>
+          <pc-variables :variables="selected_event.return_variables"></pc-variables>
           <div class="text-secondary mt-2">locals</div>
-          <pc-variables :variables="selected_event.locals.variables"></pc-variables>
+          <pc-variables :variables="selected_event.locals"></pc-variables>
 
           <!--          {{ selected_event.locals}}-->
         </div>
         <div v-if="selected_event.event_name === 'method_enter'" class="method-enter">
           <span class="text-secondary">input arguments</span>
-          <pc-variables :variables="selected_event.input_variables.variables"></pc-variables>
+          <pc-variables :variables="selected_event.input_variables"></pc-variables>
           <!--          {{ selected_event.locals}}-->
         </div>
 
@@ -35,7 +35,8 @@
     <hr>
     <div class="stack">
       Stack
-      <div v-for="stack in selected_event.stack" class="single-stack">
+<!--      {{entire_frame}}-->
+      <div v-for="stack in entire_frame" class="single-stack">
           {{stack}}
       </div>
     </div>
@@ -43,19 +44,52 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import {mapGetters, mapState} from 'vuex'
   import PcVariables from './variables.component'
 
   export default {
     name: "pc-right-toolbar",
     components: {PcVariables},
     computed: {
-      ...mapGetters(['selected_event']),
+      ...mapState(['all_stacks']),
+      ...mapGetters(['selected_event', 'selected_stack']),
+      entire_frame() {
+        let selected_event = this.selected_event
+        let entire_stack = []
+        let last_known = null
+        let find: StackFrame = this.all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
+        entire_stack.push(find.file + ':' + find.line)
 
+        do {
+          if (!find) {
+            break
+          }
+          if (find.parent_id === -1) {
+            break
+          }
+          if (find.parent_id === 0) {
+            break
+          }
+          debugger
+          let deep = this.all_stacks.find((_: StackFrame) =>_.id === find.parent_id)
+          if (!deep) {
+            break
+          }
+          last_known = deep
+          find = deep
+          entire_stack.push(deep.file + ':' + deep.line)
+        }
+        while (last_known.parent_id !== -1 || last_known.parent_id !== 0)
+        return entire_stack
+      }
     },
+
   }
 </script>
 
 <style scoped>
-
+  .stack {
+    height: 300px;
+    overflow: auto;
+  }
 </style>

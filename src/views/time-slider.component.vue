@@ -1,6 +1,6 @@
 <template>
   <div class="slider-dock mx-4">
-    <el-slider v-model="slider_position" :show-tooltip="false" :max="total_events_unfiltered - 1"
+    <el-slider v-model="slider_position" :show-tooltip="false" :debounce="600" :max="total_events - 1"
                @input="set_selection"></el-slider>
   </div>
 </template>
@@ -15,7 +15,7 @@
       }
     },
     computed: {
-      ...mapState(['slider_position']),
+      // ...mapState(['slider_position']),
       ...mapGetters(['total_events', 'total_events_unfiltered'])
     },
     methods: {

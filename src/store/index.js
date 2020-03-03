@@ -4,6 +4,9 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import io from 'socket.io-client'
 import {short} from '../views/code/short-filename'
+let goog = require('google-protobuf');
+let messages = require("../proto/message_pb")
+
 
 Vue.use(Vuex)
 
@@ -28,8 +31,19 @@ class ExecutionCursor {
   file: string
 }
 
-class Command {
-  cursor: ExecutionCursor
+class StackFrame {
+  id: number
+  line: number
+  file: string
+
+  parent_id: number
+
+  constructor (id: number, file: string, line: number, parent_id: number) {
+    this.id = id
+    this.file = file
+    this.line = line
+    this.parent_id = parent_id
+  }
 }
 
 class CodeFile {
@@ -37,7 +51,38 @@ class CodeFile {
   contents: string
 }
 
+class Variable {
+  name: string
+  value: string
+  
+  constructor (name: string, value: string) {
+    this.name = name
+    this.value = value
+  }
+}
+
 class CodeEvent {
+  event_name : string
+  stack_id : number
+  cursor: ExecutionCursor
+  locals: Variables
+
+  constructor (event_name: string,
+               cursor: ExecutionCursor,
+               stack_id: number,
+               locals: Array<Variable>,
+               input_variables: Array<Variable>,
+               return_variables: Array<Variable>
+               ) {
+    this.event_name = event_name
+    this.cursor = cursor
+    this.stack_id = stack_id
+    this.locals = locals
+    this.input_variables = input_variables
+    this.return_variables = return_variables
+
+  }
+
 }
 
 class LiveTracker {
@@ -56,6 +101,7 @@ function default_widgets (): Array<UiWidget> {
   array.push(new UiWidget('widgets.inspector'))
   array.push(new UiWidget('toolbar.surface'))
   array.push(new UiWidget('main.sidebar'))
+  array.push(new UiWidget('main.ignored_files'))
 
   return array
 }
@@ -92,6 +138,11 @@ class UiState {
     }
   }
 
+  is_filtered (command: CodeEvent) {
+    let file = command.cursor.file
+    return this.file_filters.indexOf(file) >= 0
+  }
+
   is_panel_visible (panel: string) {
     let optional: ?UiWidget = this.panels.find((_: UiWidget) => _.name === panel)
     if (optional) {
@@ -111,14 +162,18 @@ class UiState {
 class TracingSession {
   name: string
   metadata: any
-
+  short_name: string
 }
 
 class MyState {
   x: string = '11'
   is_connected: boolean = false
+  current_session: TracingSession = null
   selected_file: CodeFile
-  command_buffer: Array<Command> = []
+  entire_command_buffer: Array<CodeEvent> = []
+  all_stacks: Array<StackFrame> = []
+  command_buffer: Array<CodeEvent> = []
+
   files: Array<CodeFile> = []
   active_trackers: Array<LiveTracker> = []
   selected_index: number = 0
@@ -136,12 +191,18 @@ let socket = io('http://0.0.0.0:8080')
 export default new Vuex.Store({
   state: getState(),
   mutations: {
-    unignore_file (state: MyState, filename: string) {
+
+    session_will_load (state: MyState, session_name: string) {
+      let currentSession = state.tracing_sessions.find((_: TracingSession) => _.short_name === session_name)
+      if (currentSession) {
+        state.current_session = currentSession
+      }
+    },
+    did_unignore_file (state: MyState, filename: string) {
       state.ui.unignore_file(filename)
     },
-    ignore_current_file (state: MyState) {
-      let selected_event: Command = state.command_buffer[state.selected_index]
-      state.ui.ignore_file(selected_event.cursor.file)
+    did_ignore_file (state: MyState, filename: string) {
+      state.ui.ignore_file(filename)
     },
     did_connect (state: MyState) {
       state.is_connected = true
@@ -152,12 +213,85 @@ export default new Vuex.Store({
     new_tracker_did_connect (state: MyState, data) {
       state.active_trackers.push(new LiveTracker(data.sid, data.version))
     },
-    did_receive_buffer (state: MyState, payload) {
-      let parse = JSON.parse(payload)
-      let x = typeof parse
-      console.log(parse)
+    tracker_did_disconnect (state: MyState, sid) {
+      console.log('tracker_did_disconnect')
+      let possibleSession = state.active_trackers.find((_: LiveTracker) => _.sid === sid)
+
+      if (possibleSession) {
+        state.active_trackers.splice(state.active_trackers.indexOf(possibleSession), 1)
+      }
+    },
+
+    update_filtered_events(state: MyState, payload) {
       state.command_buffer.length = 0
-      state.command_buffer = [...parse]
+      let back_buffer = []
+      state.entire_command_buffer.forEach(_ => {
+        if (!state.ui.is_filtered(_)) {
+          back_buffer.push(_)
+        }
+      })
+      state.command_buffer = [...back_buffer]
+    },
+    did_receive_buffer (state: MyState, payload) {
+      let useProtobuf = true
+      if (useProtobuf) {
+        let xx = messages.TraceSession.deserializeBinary(payload)
+        let events = xx.getEventsList()
+        state.entire_command_buffer.length = 0
+        let back_buffer = []
+        events.forEach(_ => {
+          let cursor_pb = _.getCursor()
+          let cursor = new ExecutionCursor()
+          cursor.file = cursor_pb.getFile()
+          cursor.line = cursor_pb.getLine()
+          let all_locals = []
+          let locals = _.getLocals()
+          if (locals) {
+            let list = locals.getVariablesList()
+            list.forEach(__ => {
+              all_locals.push(new Variable(__.getName(), __.getValue()))
+            })
+          }
+
+          let all_input = []
+          let input = _.getInputVariables()
+          if (input) {
+            let list = input.getVariablesList()
+            list.forEach(__ => {
+              all_input.push(new Variable(__.getName(), __.getValue()))
+            })
+          }
+          let all_returns = []
+          let return_vars = _.getReturnVariables()
+          if (return_vars) {
+            let list = return_vars.getVariablesList()
+            list.forEach(__ => {
+              all_returns.push(new Variable(__.getName(), __.getValue()))
+            })
+          }
+          let x = new CodeEvent(_.getEventName(),  cursor, _.getStackId(), all_locals, all_input, all_returns)
+          back_buffer.push(x)
+        })
+        let back_stack = []
+        state.all_stacks.length = 0
+
+        let stacks = xx.getStackFramesList()
+        stacks.forEach(_ => {
+          let x = new StackFrame(_.getId(), _.getFile(), _.getLine(), _.getParentId())
+          back_stack.push(x)
+        })
+
+        state.entire_command_buffer = [...back_buffer]
+        state.all_stacks = [...back_stack]
+
+        // let x = goog.require('proto.TraceSession');
+        // debugger
+      } else {
+        let parse = JSON.parse(payload)
+        state.entire_command_buffer.length = 0
+        state.entire_command_buffer = [...parse]
+
+      }
     },
     file_did_load (state: MyState, payload) {
       let x = new CodeFile()
@@ -212,31 +346,34 @@ export default new Vuex.Store({
 
       let old_index = state.selected_index
       let new_index = payload
-      let direction = 'right'
-      if (new_index < old_index) {
-        //  we are scrolling back
-        direction = 'left'
-      }
+      // let direction = 'right'
+      // if (new_index < old_index) {
+      //   //  we are scrolling back
+      //   direction = 'left'
+      // }
+      //
+      // let attempt_index = payload
+      //
+      //
+      //
+      // while (true) {
+      //   if (attempt_index <= 0 && attempt_index >= state.command_buffer.length - 1) {
+      //     break
+      //   }
+      //   let command = state.command_buffer[attempt_index]
+      //   if (state.ui.is_filtered(command)) {
+      //     if (direction ==='right') {
+      //       attempt_index++
+      //     } else  if (direction ==='left') {
+      //       attempt_index--
+      //     }
+      //     continue
+      //   }
+      //   break
+      // }
+      // console.table({old_index})
 
-      let attempt_index = payload
-      while (true) {
-        if (attempt_index <= 0 && attempt_index >= state.command_buffer.length - 1) {
-          break
-        }
-        let file = state.command_buffer[attempt_index].cursor.file
-        if (state.ui.file_filters.indexOf(file) >= 0) {
-          if (direction ==='right') {
-            attempt_index++
-          } else  if (direction ==='left') {
-            attempt_index--
-          }
-          continue
-        }
-        break
-      }
-      console.table({old_index})
-
-      state.selected_index = attempt_index
+      state.selected_index = new_index
       follow_cursor_if_enabled(state)
     },
     will_toggle_ui_panel (state: MyState, panel_name: string) {
@@ -251,6 +388,16 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    unignore_file (context: ActionContext, filename: string) {
+      context.commit('did_unignore_file', filename)
+      context.commit('update_filtered_events')
+    },
+    ignore_current_file (context: ActionContext) {
+      let selected_event: CodeEvent = context.state.command_buffer[context.state.selected_index]
+      context.commit('did_ignore_file', selected_event.cursor.file)
+      context.commit('update_filtered_events')
+    },
+
     load_file (context: ActionContext, payload) {
       socket.emit('event', {
         action: 'load_file',
@@ -258,6 +405,8 @@ export default new Vuex.Store({
       })
     },
     load_session (context: ActionContext, payload) {
+      context.commit('session_will_load', payload)
+
       socket.emit('event', {
         action: 'load_single_session',
         session_name: payload,
@@ -279,6 +428,7 @@ export default new Vuex.Store({
       })
       socket.on('reply', (data) => {
         context.commit('did_receive_buffer', data)
+        context.commit('update_filtered_events')
         let files = new Set()
 
         context.state.command_buffer.forEach(value => {
@@ -300,6 +450,7 @@ export default new Vuex.Store({
       })
 
       socket.on('front', (data) => {
+
         // console.group('front event')
         // console.table(data)
         // console.groupEnd()
@@ -307,6 +458,10 @@ export default new Vuex.Store({
           let e = data.event_name
           if (e === 'new_tracker') {
             context.commit('new_tracker_did_connect', data)
+
+
+          } else if (e === 'tracker_did_disconnect') {
+            context.commit('tracker_did_disconnect', data.sid)
 
 
           }
@@ -359,15 +514,15 @@ export default new Vuex.Store({
         return 0
       }
 
-      let counter = 0
-      if (state.ui.file_filters.length > 0) {
-        state.command_buffer.forEach((_: Command) => {
-          if (state.ui.file_filters.indexOf(_.cursor.file) < 0) {
-            counter++
-          }
-        })
-        return counter
-      }
+      // let counter = 0
+      // if (state.ui.file_filters.length > 0) {
+      //   state.command_buffer.forEach((_: Command) => {
+      //     if (!state.ui.is_filtered(_)) {
+      //       counter++
+      //     }
+      //   })
+      //   return counter
+      // }
 
       let length = state.command_buffer.length
       return length
@@ -384,7 +539,6 @@ export default new Vuex.Store({
     selected_event: state => {
       return state.command_buffer[state.selected_index]
     },
-
   },
   modules: {
     // code_editor: {

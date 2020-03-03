@@ -96,8 +96,8 @@
     margin: 0 auto;
   }
   .file__line--highlighted {
-    background: rgba(178, 228, 183, 0.6);
-    color: $color-apple-gray-5;
+    background: #15522B;
+   // color: $color-apple-gray-5;
   }
   .file__line-number {
     display: inline-block;

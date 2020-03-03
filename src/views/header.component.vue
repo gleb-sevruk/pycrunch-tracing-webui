@@ -5,13 +5,11 @@
 
     <pc-connection-status/>
   </div>
-<!--    <pc-client-connections></pc-client-connections>-->
-<!--    <router-link to="/">Tracing</router-link>-->
-<!--    |-->
-    <div>Tracing</div>
-<!--    <router-link to="/about">-->
-<!--      link-->
-<!--    </router-link>-->
+    <pc-client-connections></pc-client-connections>
+    <router-link to="/">Tracing</router-link>
+    <router-link to="/session-details">
+    Session Details
+  </router-link>
     <div class="right-buttons">
 
 
@@ -32,10 +30,14 @@
         <div>
           <el-checkbox v-model="is_sidebar_panel_visible">Side Bar</el-checkbox>
         </div>
+        <div>
+          <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
+        </div>
         <div >UI</div>
         <div>
           <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
         </div>
+
       </div>
         <el-button size="mini" slot="reference" icon="el-icon-setting"></el-button>
       </el-popover>
@@ -48,7 +50,7 @@
 </template>
 
 <script>
-  import PcConnectionStatus from './connection-status.component'
+  import PcConnectionStatus from '../components/connection-status.component'
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
   export default {
     name: "pc-header",
@@ -64,6 +66,15 @@
         set (value) {
           this.will_toggle_ui_panel('main.filename')
 
+        },
+      },
+
+      is_ignored_files_panel_visible: {
+        get () {
+          return this.is_panel_visible('main.ignored_files')
+        },
+        set () {
+          this.will_toggle_ui_panel('main.ignored_files')
         },
       },
       follow_cursor: {

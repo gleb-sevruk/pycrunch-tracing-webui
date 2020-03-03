@@ -9,8 +9,13 @@
 </template>
 
 <script>
+  import {mapState} from 'vuex'
+
   export default {
-    name: "pc-connection-status"
+    name: "pc-connection-status",
+    computed: {
+      ...mapState(['is_connected'])
+    },
   }
 </script>
 

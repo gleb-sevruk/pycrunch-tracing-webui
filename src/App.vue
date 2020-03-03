@@ -21,7 +21,7 @@ hr {
 
 </style>
 <script>
-  import PcHeader from './components/header.component'
+  import PcHeader from './views/header.component'
   export default {
     components: {PcHeader}
   }

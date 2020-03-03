@@ -20,6 +20,7 @@ import './styles/main.scss';
 Vue.use(ElementUI);
 Vue.use(VueHotkey)
 
+
 Vue.config.productionTip = false
 
 new Vue({

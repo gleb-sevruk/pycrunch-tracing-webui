@@ -1,6 +1,10 @@
 <template>
-  <div class="files">
+  <div class="elevation-03  fixed-bottom">
+    Ignored files
+
+    <div class="files">
     <div v-for="file in ui.file_filters"><el-button @click="unignore_file(file)">{{file}}</el-button></div>
+  </div>
   </div>
 </template>
 
