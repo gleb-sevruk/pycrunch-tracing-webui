@@ -108,7 +108,7 @@
 
   }
   .file__line:hover {
-    background-color: $color-background-x1;
+    /*background: darken(#15522B, 10);*/
   }
 
   .file-editor {

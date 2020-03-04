@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import {mapMutations, mapState} from 'vuex'
+  import {mapActions, mapMutations, mapState} from 'vuex'
 
   export default {
     name: "pc-ignored-files",
@@ -17,7 +17,7 @@
       ...mapState(['ui'])
     },
     methods: {
-      ...mapMutations(['unignore_file'])
+      ...mapActions(['unignore_file'])
 
     },
   }

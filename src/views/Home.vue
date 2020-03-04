@@ -1,6 +1,6 @@
 // @flow
 <template>
-  <div class="home elevation-02" v-hotkey="keymap">
+  <div class="home elevation-02" v-hotkey.stop="keymap">
     <div class="side-by-side d-flex flex-row">
       <pc-left-sidebar v-if="is_panel_visible('main.sidebar')"></pc-left-sidebar>
       <div class="right-content w-100">
@@ -47,6 +47,8 @@
     },
     mounted (): void {
       this.connect()
+
+      this.arrow_keys_will_become_disabled()
     },
     methods: {
       ...mapActions([
@@ -62,7 +64,11 @@
         this.load_command_buffer()
       },
 
-
+      arrow_keys_will_become_disabled () {
+        Mousetrap.bind(['down', 'up'], function() {
+          return false
+        });
+      }
     },
     computed: {
       ...mapGetters(['total_events','is_panel_visible']),
@@ -77,6 +83,7 @@
         }
       }
     },
+
   }
 </script>
 <style scoped>

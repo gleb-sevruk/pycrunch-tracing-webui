@@ -46,7 +46,8 @@
 <script>
   import {mapGetters, mapState} from 'vuex'
   import PcVariables from './variables.component'
-  import {all_stacks} from '../../store'
+  import global_state from '../../store/global_state'
+  import {StackFrame} from '../../store/models'
 
   export default {
     name: "pc-right-toolbar",
@@ -58,7 +59,7 @@
         let selected_event = this.selected_event
         let entire_stack = []
         let last_known = null
-        let find: StackFrame = all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
+        let find: StackFrame = global_state.all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
         entire_stack.push(find.file + ':' + find.line)
 
         do {
@@ -72,7 +73,7 @@
             break
           }
           // debugger
-          let deep = all_stacks.find((_: StackFrame) =>_.id === find.parent_id)
+          let deep = global_state.all_stacks.find((_: StackFrame) =>_.id === find.parent_id)
           if (!deep) {
             break
           }

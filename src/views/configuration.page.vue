@@ -7,7 +7,7 @@
         <div>Profiles</div>
         <el-button>Add Profile</el-button>
         <!--    <div>{{profiles}}</div>-->
-        <el-card v-for="p in profiles" class="elevation-03">
+        <el-card v-if="profiles" v-for="p in profiles" class="elevation-03">
           <div>{{p}}</div>
           <el-button @click="load_profile_details(p)">Edit</el-button>
 
