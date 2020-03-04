@@ -49,7 +49,14 @@
       this.connect()
     },
     methods: {
-      ...mapActions(['connect', 'load_command_buffer', 'set_selected_index', 'debug_previous_line', 'debug_next_line']),
+      ...mapActions([
+        'connect', 'load_command_buffer',
+        'set_selected_index',
+        'debug_previous_line',
+        'debug_next_line',
+        'step_over',
+        'step_back_over',
+      ]),
       ...mapMutations(['selected_index_will_change']),
       buttonWillClick () {
         this.load_command_buffer()
@@ -58,12 +65,14 @@
 
     },
     computed: {
-      ...mapGetters(['total_events', 'selected_event', 'is_panel_visible']),
-      ...mapState(['x', 'is_connected']),
+      ...mapGetters(['total_events','is_panel_visible']),
+      ...mapState(['x', 'selected_event',  'is_connected']),
       keymap () {
         return {
           'left': this.debug_previous_line,
           'right': this.debug_next_line,
+          'up': this.step_back_over,
+          'down': this.step_over,
 
         }
       }

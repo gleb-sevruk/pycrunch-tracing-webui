@@ -16,7 +16,7 @@
     },
     computed: {
       // ...mapState(['slider_position']),
-      ...mapGetters(['total_events', 'total_events_unfiltered'])
+      ...mapState(['total_events'])
     },
     methods: {
       ...mapMutations(['selected_index_will_change']),

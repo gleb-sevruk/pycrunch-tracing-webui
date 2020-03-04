@@ -10,6 +10,9 @@
     <router-link to="/session-details">
     Session Details
   </router-link>
+    <router-link to="/configuration">
+      Configuration
+    </router-link>
     <div class="right-buttons">
 
 

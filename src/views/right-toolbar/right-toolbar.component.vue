@@ -46,18 +46,19 @@
 <script>
   import {mapGetters, mapState} from 'vuex'
   import PcVariables from './variables.component'
+  import {all_stacks} from '../../store'
 
   export default {
     name: "pc-right-toolbar",
     components: {PcVariables},
     computed: {
-      ...mapState(['all_stacks']),
-      ...mapGetters(['selected_event', 'selected_stack']),
+      ...mapState(['selected_event',]),
+      ...mapGetters([ 'selected_stack']),
       entire_frame() {
         let selected_event = this.selected_event
         let entire_stack = []
         let last_known = null
-        let find: StackFrame = this.all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
+        let find: StackFrame = all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
         entire_stack.push(find.file + ':' + find.line)
 
         do {
@@ -70,8 +71,8 @@
           if (find.parent_id === 0) {
             break
           }
-          debugger
-          let deep = this.all_stacks.find((_: StackFrame) =>_.id === find.parent_id)
+          // debugger
+          let deep = all_stacks.find((_: StackFrame) =>_.id === find.parent_id)
           if (!deep) {
             break
           }

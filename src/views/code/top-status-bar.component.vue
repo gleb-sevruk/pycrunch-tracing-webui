@@ -1,5 +1,5 @@
 <template>
-  <div class="text-secondary small sticky-top bg-apple-gray-5 ">event {{selected_index + 1}} of
+  <div class="text-secondary small sticky-top bg-apple-gray-5 " v-if="selected_event">event {{selected_index + 1}} of
     {{total_events}} in {{selected_file.filename}}
   </div>
 </template>
@@ -10,8 +10,8 @@
     name: 'pc-status-bar',
 
     computed: {
-      ...mapState(['files', 'selected_index']),
-      ...mapGetters(['short_filename', 'selected_file', 'selected_event','total_events', 'is_panel_visible']),
+      ...mapState(['selected_index', 'selected_event','total_events']),
+      ...mapGetters(['short_filename', 'selected_file', 'is_panel_visible']),
     },
   }
 </script>
