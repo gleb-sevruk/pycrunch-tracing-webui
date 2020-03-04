@@ -31,15 +31,15 @@
   // @ is an alias to /src
   import HelloWorld from '@/components/HelloWorld.vue'
   import {mapState} from 'vuex'
-  import * as utils from '../utils'
-  import {Point, PrimitivesFactory} from '../primitives'
-  import {p} from '../utils'
+  import * as utils from '../../../utils'
+  import {Point, PrimitivesFactory} from '../../primitives'
+  import {p} from '../../../utils'
   const regl2 = require('regl')
-  const shader_frag = require('../shaders/simple-triangle/tri-frag.glsl')
-  const shader_vert_tri = require('../shaders/simple-triangle/tri-vert.glsl')
-  const shader_vert_circle = require('../shaders/circle-vert.glsl')
-  const shader_vert_tri_with_transform = require('../shaders/tri-vert-with-transform.glsl')
-  import {Screen} from '../../src/positioning'
+  const shader_frag = require('../simple-triangle/tri-frag.glsl')
+  // const shader_vert_tri = require('../shaders/simple-triangle/tri-vert.glsl')
+  const shader_vert_circle = require('../circle-vert.glsl')
+  // const shader_vert_tri_with_transform = require('../shaders/tri-vert-with-transform.glsl')
+  import {Screen} from '../../../webgl/positioning'
 
   export default {
     name: 'Home',
@@ -116,12 +116,12 @@
         let regl = this.regl
         let factory = new PrimitivesFactory(regl)
         // let screen = new
-        // let circle = this.createCircle()
+        let circle = this.createCircle()
 
         let container = this.$refs.myCanvasContainer
         let screen = new Screen(container.clientWidth, container.clientHeight)
         screen.stateToConsole()
-        let left = 25
+        let left = 100
         let width = 250
         let height = 250
         let right = left + width
@@ -149,23 +149,21 @@
         })
 
 
-        // circle({
-        //   u_color: utils.rgb(0.6, 0, 0),
-        //   u_resolution:[container.clientWidth, container.clientHeight],
-        //   u_numVerts: 8*3,
-        // })
+        circle({
+          u_color: utils.rgb(0.6, 0, 0),
+          u_resolution:[container.clientWidth, container.clientHeight],
+          u_numVerts: 8*3,
+        })
         rectDraw({
-          u_color: utils.rgb(0.6, 0, 0)
+          u_color: utils.rgb(0.9, 10, 0)
         })
         for (let i = 0; i<=10; i++) {
 
         }
-        // drawTriangle({
-        //   u_color: utils.rgb(0.1, 0.7, 0)
-        // })
-        // drawTriangle2({
-        //   u_color: utils.rgb(0.9, 0.7, 0)
-        // })
+        rectDraw3({
+          u_color: utils.rgb(0.4, 0.7, 0)
+        })
+
 
       }
     },
