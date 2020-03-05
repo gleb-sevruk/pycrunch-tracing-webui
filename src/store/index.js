@@ -6,7 +6,7 @@ import {short} from '../views/code/short-filename'
 import {parse_protobuf_datastream} from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
-import {seek_back_in_current_method, step_over_from_current_event} from './debugging-steper'
+import {seek_back_in_current_method, seek_step_out_backwards, seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
 
 Vue.use(Vuex)
 
@@ -83,7 +83,7 @@ export default new Vuex.Store({
           back_buffer.push(_)
         }
       })
-      global_state.command_buffer.push(...back_buffer)
+      global_state.command_buffer = back_buffer
       state.total_events = global_state.command_buffer.length
     },
     did_receive_buffer (state: MyState, payload) {
@@ -93,8 +93,8 @@ export default new Vuex.Store({
         global_state.entire_command_buffer.length = 0
         global_state.all_stacks.length = 0
 
-        global_state.entire_command_buffer.push(...msg.command_buffer)
-        global_state.all_stacks.push(...msg.stacks)
+        global_state.entire_command_buffer = msg.command_buffer
+        global_state.all_stacks = msg.stacks
 
         // let x = goog.require('proto.TraceSession');
         // debugger
@@ -124,7 +124,7 @@ export default new Vuex.Store({
         if (!state.ui.follow_cursor) {
           return
         }
-        console.group('scroll decision')
+        // console.group('scroll decision')
         let newTop = state.selected_event.cursor.line * 22 - 100
         let scrollTop = window.scrollY
         let up_treshold = scrollTop - 200
@@ -153,7 +153,7 @@ export default new Vuex.Store({
           }, 100)
         }
 
-        console.groupEnd()
+        // console.groupEnd()
       }
 
       let old_index = state.selected_index
@@ -161,6 +161,7 @@ export default new Vuex.Store({
 
       state.selected_index = new_index
       state.selected_event = global_state.command_buffer[new_index]
+
       follow_cursor_if_enabled(state)
     },
     will_toggle_ui_panel (state: MyState, panel_name: string) {
@@ -242,7 +243,7 @@ export default new Vuex.Store({
         context.commit('selected_index_will_change', 0)
 
         let files = new Set()
-
+        //
         global_state.command_buffer.forEach(value => {
           if (value.cursor) {
             files.add(value.cursor.file)
@@ -326,6 +327,26 @@ export default new Vuex.Store({
       context.commit('selected_index_will_change', attempt_index)
 
     },
+    step_out_backwards (context: ActionContext) {
+
+      let event_under_cursor: CodeEvent = global_state.command_buffer[context.state.selected_index]
+      // same as step out in regular debugging session, but
+      // in opposite direction
+
+      let attempt_index = seek_step_out_backwards(event_under_cursor, context.state.selected_index)
+      context.commit('selected_index_will_change', attempt_index)
+
+    },
+    step_out_forward (context: ActionContext) {
+
+      let current_index = context.state.selected_index
+
+      let current_event: CodeEvent = global_state.command_buffer[current_index]
+      // this is same as step out in regular debugging session
+      let new_index = seek_step_out_forward(current_event, current_index)
+      context.commit('selected_index_will_change', new_index)
+
+    },
 
     step_over (context: ActionContext) {
       let x: MyState = context.state
@@ -349,6 +370,10 @@ export default new Vuex.Store({
     selected_file: (state: MyState) => {
       let selected_event = state.selected_event
       if (selected_event) {
+        // socket.emit('event', {
+        //   action: 'load_file',
+        //   file_to_load: selected_event.cursor.file,
+        // })
         return state.files.find((value: CodeFile) => value.filename === selected_event.cursor.file)
       }
     },

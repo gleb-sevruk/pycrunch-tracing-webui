@@ -58,6 +58,9 @@
         'debug_next_line',
         'step_over',
         'step_back_over',
+        'step_back_out',
+        'step_out_backwards',
+        'step_out_forward',
       ]),
       ...mapMutations(['selected_index_will_change']),
       buttonWillClick () {
@@ -78,6 +81,8 @@
           'left': this.debug_previous_line,
           'right': this.debug_next_line,
           'up': this.step_back_over,
+          'shift+up': this.step_out_backwards,
+          'shift+down': this.step_out_forward,
           'down': this.step_over,
 
         }
