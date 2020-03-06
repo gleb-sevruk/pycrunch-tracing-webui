@@ -1,9 +1,8 @@
 <template>
   <div class="all-variables">
-    <div v-for="variable in variables" class="row single-variable">
-      <div class="col-4 text-monospace text-secondary"> {{variable.name}}:</div>
-      <div class="col text-monospace"> {{variable.value}}
-      <span v-if="variable.value === null" class="text-danger small">None</span></div>
+    <div v-for="variable in variables" class="single-variable">
+
+      <pc-single-variable :variable="variable"/>
     </div>
   </div>
 
@@ -11,15 +10,12 @@
 </template>
 
 <script>
-  class VariableValue {
-    value : any
-    name : string
-    constructor (name, value) {
-      this.name = name
-      this.value = value
-    }
-  }
+  import PcSingleVariable from './PcSingleVariable'
+  import {Variable} from '../../store/models'
+
+
   export default {
+    components: {PcSingleVariable},
     props: ['variables'],
     name: "pc-variables",
     computed: {
@@ -30,7 +26,7 @@
           if (this.variables.hasOwnProperty(variable_name)) {
             let variable_value = this.variables[variable_name];
             // console.log(variable_name, variable_value)
-            vars.push(new VariableValue(variable_name, variable_value))
+            vars.push(new Variable(variable_name, variable_value))
 
           }
         }
@@ -43,5 +39,8 @@
 </script>
 
 <style scoped>
-
+  .all-variables {
+    max-height: 50%;
+    overflow: auto;
+  }
 </style>

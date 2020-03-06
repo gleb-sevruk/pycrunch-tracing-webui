@@ -1,5 +1,5 @@
 <template>
-  <div  class="position-fixed elevation-02 bg-apple-gray-5 rounded  mt-3  mr-4 p-4">
+  <div  class="inspector-panel position-fixed elevation-02 bg-apple-gray-5 rounded mt-3  mr-4 p-4">
     <div class="heading"><span class="text-secondary">Inspector</span></div>
     <a :href="'#line' + selected_event.cursor.line">
       <div class="text-monospace small" >
@@ -32,8 +32,8 @@
       </div>
 
     </div>
-    <hr>
-    <div class="stack">
+    <div class="stack" v-if="is_panel_visible('inspector.stack')">
+      <hr>
       Stack
 <!--      {{entire_frame}}-->
       <div v-for="stack in entire_frame" class="single-stack">
@@ -54,7 +54,8 @@
     components: {PcVariables},
     computed: {
       ...mapState(['selected_event',]),
-      ...mapGetters([ 'selected_stack']),
+      ...mapGetters([ 'selected_stack', 'is_panel_visible']),
+
       entire_frame() {
         let selected_event = this.selected_event
         let entire_stack = []
@@ -93,5 +94,10 @@
   .stack {
     height: 300px;
     overflow: auto;
+  }
+  .inspector-panel {
+    max-height: 80vh;
+    width: 48%;
+    overflow-y: auto;
   }
 </style>

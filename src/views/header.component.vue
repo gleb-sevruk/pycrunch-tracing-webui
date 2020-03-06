@@ -36,6 +36,10 @@
         <div>
           <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
         </div>
+        <div>
+          <el-checkbox v-model="is_stack_visible">Stack</el-checkbox>
+        </div>
+
         <div >UI</div>
         <div>
           <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
@@ -71,7 +75,15 @@
 
         },
       },
+      is_stack_visible: {
+        get() {
+          return this.is_panel_visible('inspector.stack')
+        },
+        set (new_value) {
+          this.will_toggle_ui_panel('inspector.stack')
 
+        },
+      },
       is_ignored_files_panel_visible: {
         get () {
           return this.is_panel_visible('main.ignored_files')

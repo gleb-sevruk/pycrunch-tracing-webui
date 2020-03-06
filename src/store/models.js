@@ -79,6 +79,7 @@ function default_widgets (): Array<UiWidget> {
   add_widget('toolbar.surface')
   add_widget('main.sidebar')
   add_widget('main.ignored_files')
+    add_widget('inspector.stack')
 
   return array
 }

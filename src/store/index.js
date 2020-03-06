@@ -6,7 +6,8 @@ import {short} from '../views/code/short-filename'
 import {parse_protobuf_datastream} from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
-import {seek_back_in_current_method, seek_step_out_backwards, seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
+import {seek_back_in_current_method, seek_step_out_backwards,
+  seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
 
 Vue.use(Vuex)
 
