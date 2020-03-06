@@ -40,7 +40,7 @@
 
 <style scoped>
   .all-variables {
-    max-height: 50%;
-    overflow: auto;
+    /*max-height: 50%;*/
+    overflow-x: hidden;
   }
 </style>
