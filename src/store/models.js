@@ -2,20 +2,27 @@
 export class ExecutionCursor {
   line: number
   file: string
+  function_name: string
 }
 
 export class StackFrame {
   id: number
   line: number
   file: string
+  function_name: string
 
   parent_id: number
 
-  constructor (id: number, file: string, line: number, parent_id: number) {
+  constructor (id: number,
+               file: string,
+               line: number,
+               parent_id: number,
+               function_name: string) {
     this.id = id
     this.file = file
     this.line = line
     this.parent_id = parent_id
+    this.function_name = function_name
   }
 }
 
@@ -79,7 +86,8 @@ function default_widgets (): Array<UiWidget> {
   add_widget('toolbar.surface')
   add_widget('main.sidebar')
   add_widget('main.ignored_files')
-    add_widget('inspector.stack')
+  add_widget('inspector.stack')
+  add_widget('inspector.variables')
 
   return array
 }

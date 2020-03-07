@@ -12,8 +12,6 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
-var google_protobuf_any_pb = require('google-protobuf/google/protobuf/any_pb.js');
-goog.object.extend(proto, google_protobuf_any_pb);
 goog.exportSymbol('proto.ExecutionCursor', null, global);
 goog.exportSymbol('proto.StackFrame', null, global);
 goog.exportSymbol('proto.TraceEvent', null, global);
@@ -157,45 +155,45 @@ proto.TraceSession.repeatedFields_ = [1,2];
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.TraceSession.prototype.toObject = function(opt_includeInstance) {
-    return proto.TraceSession.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.TraceSession.prototype.toObject = function(opt_includeInstance) {
+  return proto.TraceSession.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.TraceSession} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.TraceSession.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    eventsList: jspb.Message.toObjectList(msg.getEventsList(),
+    proto.TraceEvent.toObject, includeInstance),
+    stackFramesList: jspb.Message.toObjectList(msg.getStackFramesList(),
+    proto.StackFrame.toObject, includeInstance)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.TraceSession} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.TraceSession.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      eventsList: jspb.Message.toObjectList(msg.getEventsList(),
-        proto.TraceEvent.toObject, includeInstance),
-      stackFramesList: jspb.Message.toObjectList(msg.getStackFramesList(),
-        proto.StackFrame.toObject, includeInstance)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -225,19 +223,19 @@ proto.TraceSession.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = new proto.TraceEvent;
-        reader.readMessage(value,proto.TraceEvent.deserializeBinaryFromReader);
-        msg.addEvents(value);
-        break;
-      case 2:
-        var value = new proto.StackFrame;
-        reader.readMessage(value,proto.StackFrame.deserializeBinaryFromReader);
-        msg.addStackFrames(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = new proto.TraceEvent;
+      reader.readMessage(value,proto.TraceEvent.deserializeBinaryFromReader);
+      msg.addEvents(value);
+      break;
+    case 2:
+      var value = new proto.StackFrame;
+      reader.readMessage(value,proto.StackFrame.deserializeBinaryFromReader);
+      msg.addStackFrames(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -296,7 +294,7 @@ proto.TraceSession.prototype.getEventsList = function() {
 /**
  * @param {!Array<!proto.TraceEvent>} value
  * @return {!proto.TraceSession} returns this
- */
+*/
 proto.TraceSession.prototype.setEventsList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
@@ -334,7 +332,7 @@ proto.TraceSession.prototype.getStackFramesList = function() {
 /**
  * @param {!Array<!proto.StackFrame>} value
  * @return {!proto.TraceSession} returns this
- */
+*/
 proto.TraceSession.prototype.setStackFramesList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
@@ -363,47 +361,47 @@ proto.TraceSession.prototype.clearStackFramesList = function() {
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.TraceEvent.prototype.toObject = function(opt_includeInstance) {
-    return proto.TraceEvent.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.TraceEvent.prototype.toObject = function(opt_includeInstance) {
+  return proto.TraceEvent.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.TraceEvent} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.TraceEvent.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    eventName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    cursor: (f = msg.getCursor()) && proto.ExecutionCursor.toObject(includeInstance, f),
+    stackId: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    inputVariables: (f = msg.getInputVariables()) && proto.Variables.toObject(includeInstance, f),
+    locals: (f = msg.getLocals()) && proto.Variables.toObject(includeInstance, f),
+    returnVariables: (f = msg.getReturnVariables()) && proto.Variables.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.TraceEvent} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.TraceEvent.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      eventName: jspb.Message.getFieldWithDefault(msg, 1, ""),
-      cursor: (f = msg.getCursor()) && proto.ExecutionCursor.toObject(includeInstance, f),
-      stackId: jspb.Message.getFieldWithDefault(msg, 3, 0),
-      inputVariables: (f = msg.getInputVariables()) && proto.Variables.toObject(includeInstance, f),
-      locals: (f = msg.getLocals()) && proto.Variables.toObject(includeInstance, f),
-      returnVariables: (f = msg.getReturnVariables()) && proto.Variables.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -433,37 +431,37 @@ proto.TraceEvent.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setEventName(value);
-        break;
-      case 2:
-        var value = new proto.ExecutionCursor;
-        reader.readMessage(value,proto.ExecutionCursor.deserializeBinaryFromReader);
-        msg.setCursor(value);
-        break;
-      case 3:
-        var value = /** @type {number} */ (reader.readInt32());
-        msg.setStackId(value);
-        break;
-      case 4:
-        var value = new proto.Variables;
-        reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
-        msg.setInputVariables(value);
-        break;
-      case 5:
-        var value = new proto.Variables;
-        reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
-        msg.setLocals(value);
-        break;
-      case 6:
-        var value = new proto.Variables;
-        reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
-        msg.setReturnVariables(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEventName(value);
+      break;
+    case 2:
+      var value = new proto.ExecutionCursor;
+      reader.readMessage(value,proto.ExecutionCursor.deserializeBinaryFromReader);
+      msg.setCursor(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setStackId(value);
+      break;
+    case 4:
+      var value = new proto.Variables;
+      reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
+      msg.setInputVariables(value);
+      break;
+    case 5:
+      var value = new proto.Variables;
+      reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
+      msg.setLocals(value);
+      break;
+    case 6:
+      var value = new proto.Variables;
+      reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
+      msg.setReturnVariables(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -570,7 +568,7 @@ proto.TraceEvent.prototype.getCursor = function() {
 /**
  * @param {?proto.ExecutionCursor|undefined} value
  * @return {!proto.TraceEvent} returns this
- */
+*/
 proto.TraceEvent.prototype.setCursor = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
@@ -625,7 +623,7 @@ proto.TraceEvent.prototype.getInputVariables = function() {
 /**
  * @param {?proto.Variables|undefined} value
  * @return {!proto.TraceEvent} returns this
- */
+*/
 proto.TraceEvent.prototype.setInputVariables = function(value) {
   return jspb.Message.setWrapperField(this, 4, value);
 };
@@ -662,7 +660,7 @@ proto.TraceEvent.prototype.getLocals = function() {
 /**
  * @param {?proto.Variables|undefined} value
  * @return {!proto.TraceEvent} returns this
- */
+*/
 proto.TraceEvent.prototype.setLocals = function(value) {
   return jspb.Message.setWrapperField(this, 5, value);
 };
@@ -699,7 +697,7 @@ proto.TraceEvent.prototype.getReturnVariables = function() {
 /**
  * @param {?proto.Variables|undefined} value
  * @return {!proto.TraceEvent} returns this
- */
+*/
 proto.TraceEvent.prototype.setReturnVariables = function(value) {
   return jspb.Message.setWrapperField(this, 6, value);
 };
@@ -734,43 +732,43 @@ proto.Variables.repeatedFields_ = [1];
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.Variables.prototype.toObject = function(opt_includeInstance) {
-    return proto.Variables.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.Variables.prototype.toObject = function(opt_includeInstance) {
+  return proto.Variables.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.Variables} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.Variables.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    variablesList: jspb.Message.toObjectList(msg.getVariablesList(),
+    proto.Variable.toObject, includeInstance)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.Variables} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.Variables.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      variablesList: jspb.Message.toObjectList(msg.getVariablesList(),
-        proto.Variable.toObject, includeInstance)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -800,14 +798,14 @@ proto.Variables.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = new proto.Variable;
-        reader.readMessage(value,proto.Variable.deserializeBinaryFromReader);
-        msg.addVariables(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = new proto.Variable;
+      reader.readMessage(value,proto.Variable.deserializeBinaryFromReader);
+      msg.addVariables(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -858,7 +856,7 @@ proto.Variables.prototype.getVariablesList = function() {
 /**
  * @param {!Array<!proto.Variable>} value
  * @return {!proto.Variables} returns this
- */
+*/
 proto.Variables.prototype.setVariablesList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
@@ -887,43 +885,43 @@ proto.Variables.prototype.clearVariablesList = function() {
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.Variable.prototype.toObject = function(opt_includeInstance) {
-    return proto.Variable.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.Variable.prototype.toObject = function(opt_includeInstance) {
+  return proto.Variable.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.Variable} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.Variable.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    value: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.Variable} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.Variable.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-      value: jspb.Message.getFieldWithDefault(msg, 2, "")
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -953,17 +951,17 @@ proto.Variable.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setName(value);
-        break;
-      case 2:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setValue(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setValue(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -1047,43 +1045,44 @@ proto.Variable.prototype.setValue = function(value) {
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.ExecutionCursor.prototype.toObject = function(opt_includeInstance) {
-    return proto.ExecutionCursor.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.ExecutionCursor.prototype.toObject = function(opt_includeInstance) {
+  return proto.ExecutionCursor.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.ExecutionCursor} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.ExecutionCursor.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    file: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    line: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    functionName: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.ExecutionCursor} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.ExecutionCursor.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      file: jspb.Message.getFieldWithDefault(msg, 1, ""),
-      line: jspb.Message.getFieldWithDefault(msg, 2, 0)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -1113,17 +1112,21 @@ proto.ExecutionCursor.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setFile(value);
-        break;
-      case 2:
-        var value = /** @type {number} */ (reader.readInt32());
-        msg.setLine(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFile(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setLine(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFunctionName(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -1161,6 +1164,13 @@ proto.ExecutionCursor.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt32(
       2,
+      f
+    );
+  }
+  f = message.getFunctionName();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
       f
     );
   }
@@ -1203,49 +1213,68 @@ proto.ExecutionCursor.prototype.setLine = function(value) {
 };
 
 
+/**
+ * optional string function_name = 3;
+ * @return {string}
+ */
+proto.ExecutionCursor.prototype.getFunctionName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ExecutionCursor} returns this
+ */
+proto.ExecutionCursor.prototype.setFunctionName = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
 
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.StackFrame.prototype.toObject = function(opt_includeInstance) {
-    return proto.StackFrame.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.StackFrame.prototype.toObject = function(opt_includeInstance) {
+  return proto.StackFrame.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.StackFrame} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.StackFrame.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    id: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    file: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    line: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    parentId: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    functionName: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.StackFrame} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.StackFrame.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      id: jspb.Message.getFieldWithDefault(msg, 1, 0),
-      file: jspb.Message.getFieldWithDefault(msg, 2, ""),
-      line: jspb.Message.getFieldWithDefault(msg, 3, 0),
-      parentId: jspb.Message.getFieldWithDefault(msg, 4, 0)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -1275,25 +1304,29 @@ proto.StackFrame.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {number} */ (reader.readInt32());
-        msg.setId(value);
-        break;
-      case 2:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setFile(value);
-        break;
-      case 3:
-        var value = /** @type {number} */ (reader.readInt32());
-        msg.setLine(value);
-        break;
-      case 4:
-        var value = /** @type {number} */ (reader.readInt32());
-        msg.setParentId(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setId(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFile(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setLine(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setParentId(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFunctionName(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -1345,6 +1378,13 @@ proto.StackFrame.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt32(
       4,
+      f
+    );
+  }
+  f = message.getFunctionName();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -1420,6 +1460,24 @@ proto.StackFrame.prototype.getParentId = function() {
  */
 proto.StackFrame.prototype.setParentId = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional string function_name = 5;
+ * @return {string}
+ */
+proto.StackFrame.prototype.getFunctionName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.StackFrame} returns this
+ */
+proto.StackFrame.prototype.setFunctionName = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

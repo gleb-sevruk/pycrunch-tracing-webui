@@ -365,8 +365,8 @@ export default new Vuex.Store({
     is_panel_visible: (state: MyState) => panel => {
       return state.ui.is_panel_visible(panel)
     },
-    short_filename: state => full => {
-      return short(full)
+    short_filename: state => (full: string, until: number) => {
+      return short(full, until)
     },
     selected_file: (state: MyState) => {
       let selected_event = state.selected_event

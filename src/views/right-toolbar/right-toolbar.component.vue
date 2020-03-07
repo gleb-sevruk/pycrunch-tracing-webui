@@ -1,14 +1,18 @@
 <template>
   <div  class="inspector-panel position-fixed elevation-02 bg-apple-gray-5 rounded mt-3  mr-4 p-4">
-    <div class="heading"><span class="text-secondary">Inspector</span></div>
+    <div class="d-flex mb-1">
+      <div class="heading" ><span class="text-secondary">Inspector</span></div>
+      <el-button type="mini" @click="will_toggle_ui_panel('inspector.variables')" class="elevation-03 bg-apple-gray-3" title="Toggle Variables">V</el-button>
+      <el-button type="mini" @click="will_toggle_ui_panel('inspector.stack')" class="elevation-03 bg-apple-gray-3" title="Toggle Stack">S</el-button>
+    </div>
     <a :href="'#line' + selected_event.cursor.line">
       <div class="text-monospace small" >
-        <span class="text-secondary" >event:</span> {{selected_event.event_name}}:{{selected_event.cursor.line}}
+        <span class="text-secondary" >event:</span> {{selected_event.cursor.function_name}}, {{short_filename(selected_event.cursor.file, 2)}} {{selected_event.event_name}}:{{selected_event.cursor.line}}
       </div>
     </a>
-    <hr/>
-    <div class="locals">
+    <div v-if="is_panel_visible('inspector.variables')" class="locals" >
 <!--      <span class="text-secondary">locals</span>-->
+      <hr/>
       <div class="all-locals">
         <div v-if="selected_event.event_name === 'line'" class="line">
           <span class="text-secondary">locals</span>
@@ -37,14 +41,14 @@
       Stack
 <!--      {{entire_frame}}-->
       <div v-for="stack in entire_frame" class="single-stack">
-          {{stack}}
+        <code class="text-light">{{stack}}</code>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import {mapGetters, mapState} from 'vuex'
+  import {mapGetters, mapMutations, mapState} from 'vuex'
   import PcVariables from './variables.component'
   import global_state from '../../store/global_state'
   import {StackFrame} from '../../store/models'
@@ -54,14 +58,19 @@
     components: {PcVariables},
     computed: {
       ...mapState(['selected_event',]),
-      ...mapGetters([ 'selected_stack', 'is_panel_visible']),
+      ...mapGetters([ 'selected_stack', 'is_panel_visible','short_filename']),
 
       entire_frame() {
         let selected_event = this.selected_event
         let entire_stack = []
         let last_known = null
         let find: StackFrame = global_state.all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
-        entire_stack.push(find.file + ':' + find.line)
+        let self = this
+        function stack_frame_to_string (find: StackFrame) {
+          return `${find.function_name}, ${self.short_filename(find.file, 3)}:${find.line}`
+        }
+
+        entire_stack.push(stack_frame_to_string(find))
 
         do {
           if (!find) {
@@ -80,13 +89,15 @@
           }
           last_known = deep
           find = deep
-          entire_stack.push(deep.file + ':' + deep.line)
+          entire_stack.push(stack_frame_to_string(deep))
         }
         while (last_known.parent_id !== -1 || last_known.parent_id !== 0)
         return entire_stack
       }
     },
-
+    methods: {
+      ...mapMutations(['will_toggle_ui_panel'])
+    },
   }
 </script>
 

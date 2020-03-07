@@ -21,6 +21,7 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
     let cursor = new ExecutionCursor()
     cursor.file = cursor_pb.getFile()
     cursor.line = cursor_pb.getLine()
+    cursor.function_name = cursor_pb.getFunctionName()
     let all_locals = []
     let locals = _.getLocals()
     if (locals) {
@@ -54,7 +55,13 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
 
   let stacks = xx.getStackFramesList()
   stacks.forEach(_ => {
-    let x = new StackFrame(_.getId(), _.getFile(), _.getLine(), _.getParentId())
+    let x = new StackFrame(
+      _.getId(),
+      _.getFile(),
+      _.getLine(),
+      _.getParentId(),
+      _.getFunctionName(),
+      )
     back_stack.push(x)
   })
 
