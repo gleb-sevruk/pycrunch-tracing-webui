@@ -18,9 +18,13 @@
       if(!PIXI.utils.isWebGLSupported()){
         type = "canvas"
       }
+      this.$refs.js_pixie_container.addEventListener('wheel', e => {
+        e.preventDefault()
+      }, {passive: false})
       var app = new PIXI.Application(
         {
           forceCanvas: true,
+
           antialias:true, width: window.innerWidth, height: window.innerHeight
         });
       var viewport = new Viewport({

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-secondary small sticky-top bg-apple-gray-5 " v-if="selected_event">event {{selected_index + 1}} of
+  <div v-if="selected_file" class="text-secondary small sticky-top bg-apple-gray-5 " >event {{selected_index + 1}} of
     {{total_events}} in {{selected_file.filename}}
   </div>
 </template>

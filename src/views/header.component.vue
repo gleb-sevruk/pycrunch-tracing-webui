@@ -5,7 +5,6 @@
 
       <pc-connection-status/>
     </div>
-    <pc-client-connections></pc-client-connections>
     <router-link to="/">Tracing</router-link>
     <router-link to="/session-details">
       Session Details
