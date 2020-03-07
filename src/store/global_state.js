@@ -8,4 +8,13 @@ class global {
 
 }
 
-export default new global()
+let global1 = new global()
+window.global_state = global1
+// some test code
+// let count = 1
+// window.global_state.entire_command_buffer.forEach(value => {
+//   if (value.event_name === 'method_enter') {
+//     count++
+//   }
+// })
+export default global1

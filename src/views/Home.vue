@@ -9,6 +9,7 @@
           <pc-status-bar v-if="is_panel_visible('main.filename')"/>
         </div>
         <pc-tabbed-editor></pc-tabbed-editor>
+        <pc-stack-frames v-if="is_panel_visible('main.stack-frames')"/>
         <pc-ignored-files v-if="is_panel_visible('main.ignored_files')"></pc-ignored-files>
         <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
           <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
@@ -29,11 +30,13 @@
   import PcToolbarSurface from './toolbars/toolbar-surface.component'
   import PcLeftSidebar from './left-sidebar/left.sidebar.component'
   import PcIgnoredFiles from './ignored-files.component'
+  import PcStackFrames from './PcStackFrames'
 
 
   export default {
     name: 'Home',
     components: {
+      PcStackFrames,
       PcIgnoredFiles,
       PcToolbarSurface,
       PcTabbedEditor,

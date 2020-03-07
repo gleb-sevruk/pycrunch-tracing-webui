@@ -394,7 +394,8 @@ proto.TraceEvent.toObject = function(includeInstance, msg) {
     stackId: jspb.Message.getFieldWithDefault(msg, 3, 0),
     inputVariables: (f = msg.getInputVariables()) && proto.Variables.toObject(includeInstance, f),
     locals: (f = msg.getLocals()) && proto.Variables.toObject(includeInstance, f),
-    returnVariables: (f = msg.getReturnVariables()) && proto.Variables.toObject(includeInstance, f)
+    returnVariables: (f = msg.getReturnVariables()) && proto.Variables.toObject(includeInstance, f),
+    ts: jspb.Message.getFloatingPointFieldWithDefault(msg, 7, 0.0)
   };
 
   if (includeInstance) {
@@ -458,6 +459,10 @@ proto.TraceEvent.deserializeBinaryFromReader = function(msg, reader) {
       var value = new proto.Variables;
       reader.readMessage(value,proto.Variables.deserializeBinaryFromReader);
       msg.setReturnVariables(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setTs(value);
       break;
     default:
       reader.skipField();
@@ -532,6 +537,13 @@ proto.TraceEvent.serializeBinaryToWriter = function(message, writer) {
       6,
       f,
       proto.Variables.serializeBinaryToWriter
+    );
+  }
+  f = message.getTs();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      7,
+      f
     );
   }
 };
@@ -718,6 +730,24 @@ proto.TraceEvent.prototype.clearReturnVariables = function() {
  */
 proto.TraceEvent.prototype.hasReturnVariables = function() {
   return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional float ts = 7;
+ * @return {number}
+ */
+proto.TraceEvent.prototype.getTs = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 7, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.TraceEvent} returns this
+ */
+proto.TraceEvent.prototype.setTs = function(value) {
+  return jspb.Message.setProto3FloatField(this, 7, value);
 };
 
 

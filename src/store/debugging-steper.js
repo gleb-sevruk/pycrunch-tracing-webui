@@ -36,25 +36,25 @@ function event_at (attempt_index) {
 }
 
 export function seek_step_out_backwards (event_under_cursor: CodeEvent, current_index: number): number {
-  console.group('seek_step_out_backwards')
-  console.table({current_index, event_under_cursor})
+  // console.group('seek_step_out_backwards')
+  // console.table({current_index, event_under_cursor})
   let found_exit = false
   let target_index = current_index - 1
   let attempt_event : CodeEvent = event_at(target_index)
   let total = global_state.command_buffer.length
   if (event_under_cursor.event_name !== 'method_enter') {
     let depth_stack = []
-    console.log('!== method_enter')
+    // console.log('!== method_enter')
 
     while (!found_exit && target_index > 1 ) {
-      console.log('while, current', attempt_event.event_name)
+      // console.log('while, current', attempt_event.event_name)
       attempt_event = event_at(target_index)
       if (attempt_event.event_name === 'method_exit') {
-        console.log('attempt_event = method_exit', target_index)
+        // console.log('attempt_event = method_exit', target_index)
         depth_stack.push(target_index)
       }
       if (attempt_event.event_name === 'method_enter') {
-        console.log('attempt_event = method_enter', target_index)
+        // console.log('attempt_event = method_enter', target_index)
         if (depth_stack.length === 0) {
           found_exit = true
           target_index -= 1
@@ -69,31 +69,31 @@ export function seek_step_out_backwards (event_under_cursor: CodeEvent, current_
 
     }
   }
-  console.groupEnd()
+  // console.groupEnd()
 
   return target_index
 }
 
 export function seek_step_out_forward (event_under_cursor: CodeEvent, current_index: number) {
-  console.group('seek_step_out_forward')
-  console.table({current_index, event_under_cursor})
+  // console.group('seek_step_out_forward')
+  // console.table({current_index, event_under_cursor})
   let found_exit = false
   let target_index = current_index +1
   let attempt_event : CodeEvent = event_at(target_index)
   let total = global_state.command_buffer.length
   if (event_under_cursor.event_name !== 'method_exit') {
     let depth_stack = []
-    console.log('!== method_exit')
+    // console.log('!== method_exit')
 
     while (!found_exit && target_index < total ) {
-      console.log('while, current', attempt_event.event_name)
+      // console.log('while, current', attempt_event.event_name)
       attempt_event = event_at(target_index)
       if (attempt_event.event_name === 'method_enter') {
-        console.log('attempt_event = method_enter', target_index)
+        // console.log('attempt_event = method_enter', target_index)
         depth_stack.push(target_index)
       }
       if (attempt_event.event_name === 'method_exit') {
-        console.log('attempt_event = method_exit', target_index)
+        // console.log('attempt_event = method_exit', target_index)
         if (depth_stack.length === 0) {
           found_exit = true
           // target_index += 1
@@ -107,7 +107,7 @@ export function seek_step_out_forward (event_under_cursor: CodeEvent, current_in
 
     }
   }
-  console.groupEnd()
+  // console.groupEnd()
 
   return target_index
 }

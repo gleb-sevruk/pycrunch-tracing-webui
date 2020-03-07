@@ -5,15 +5,16 @@
       <el-button type="mini" @click="will_toggle_ui_panel('inspector.variables')" class="elevation-03 bg-apple-gray-3" title="Toggle Variables">V</el-button>
       <el-button type="mini" @click="will_toggle_ui_panel('inspector.stack')" class="elevation-03 bg-apple-gray-3" title="Toggle Stack">S</el-button>
     </div>
-    <a :href="'#line' + selected_event.cursor.line">
+    <a v-if="selected_event" :href="'#line' + selected_event.cursor.line">
       <div class="text-monospace small" >
         <span class="text-secondary" >event:</span> {{selected_event.cursor.function_name}}, {{short_filename(selected_event.cursor.file, 2)}} {{selected_event.event_name}}:{{selected_event.cursor.line}}
       </div>
     </a>
+    <div v-if="selected_event" title="event timestamp in format ms.microsecs (1 millisecond=1000 microseconds) ">{{selected_event.ts | round(3)}} ms</div>
     <div v-if="is_panel_visible('inspector.variables')" class="locals" >
 <!--      <span class="text-secondary">locals</span>-->
-      <hr/>
-      <div class="all-locals">
+      <div class="all-locals" v-if="selected_event">
+        <hr/>
         <div v-if="selected_event.event_name === 'line'" class="line">
           <span class="text-secondary">locals</span>
           <pc-variables :variables="selected_event.locals"></pc-variables>
@@ -40,7 +41,7 @@
       <hr>
       Stack
 <!--      {{entire_frame}}-->
-      <div v-for="stack in entire_frame" class="single-stack">
+      <div v-if="selected_event" v-for="stack in entire_frame" class="single-stack">
         <code class="text-light">{{stack}}</code>
       </div>
     </div>
@@ -67,6 +68,9 @@
         let find: StackFrame = global_state.all_stacks.find((_: StackFrame) =>_.id === selected_event.stack_id)
         let self = this
         function stack_frame_to_string (find: StackFrame) {
+          if (!find) {
+            return 'no data '
+          }
           return `${find.function_name}, ${self.short_filename(find.file, 3)}:${find.line}`
         }
 

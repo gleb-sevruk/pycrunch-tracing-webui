@@ -126,7 +126,11 @@ export default new Vuex.Store({
           return
         }
         // console.group('scroll decision')
-        let newTop = state.selected_event.cursor.line * 22 - 100
+        let selectedEvent = state.selected_event
+        if (!selectedEvent) {
+          return
+        }
+        let newTop = selectedEvent.cursor.line * 22 - 100
         let scrollTop = window.scrollY
         let up_treshold = scrollTop - 200
         if (up_treshold < 0) {

@@ -28,8 +28,12 @@ Vue.use(VueHotkey)
 
 Vue.config.productionTip = false
 
+require('./shared/filters')
+
+
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
+
 }).$mount('#app')

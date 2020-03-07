@@ -47,7 +47,7 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
         all_returns.push(new Variable(__.getName(), __.getValue()))
       })
     }
-    let x = new CodeEvent(_.getEventName(),  cursor, _.getStackId(), all_locals, all_input, all_returns)
+    let x = new CodeEvent(_.getEventName(),  cursor, _.getStackId(), all_locals, all_input, all_returns, _.getTs())
     back_buffer.push(x)
   })
   let back_stack = []

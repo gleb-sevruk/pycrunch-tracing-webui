@@ -46,13 +46,14 @@ export class CodeEvent {
   stack_id : number
   cursor: ExecutionCursor
   locals: Variables
-
+  ts: number
   constructor (event_name: string,
                cursor: ExecutionCursor,
                stack_id: number,
                locals: Array<Variable>,
                input_variables: Array<Variable>,
-               return_variables: Array<Variable>
+               return_variables: Array<Variable>,
+               ts: number
   ) {
     this.event_name = event_name
     this.cursor = cursor
@@ -60,6 +61,7 @@ export class CodeEvent {
     this.locals = locals
     this.input_variables = input_variables
     this.return_variables = return_variables
+    this.ts = ts
 
   }
 
@@ -88,6 +90,7 @@ function default_widgets (): Array<UiWidget> {
   add_widget('main.ignored_files')
   add_widget('inspector.stack')
   add_widget('inspector.variables')
+  add_widget('main.stack-frames')
 
   return array
 }

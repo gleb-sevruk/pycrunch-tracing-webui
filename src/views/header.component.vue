@@ -1,15 +1,15 @@
 <template>
   <div id="nav" class="elevation-03 p-2 d-flex justify-content-between">
-  <div>
-    <el-button size="mini"  icon="el-icon-more" class="mr-4" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
+    <div>
+      <el-button size="mini" icon="el-icon-more" class="mr-4" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
 
-    <pc-connection-status/>
-  </div>
+      <pc-connection-status/>
+    </div>
     <pc-client-connections></pc-client-connections>
     <router-link to="/">Tracing</router-link>
     <router-link to="/session-details">
-    Session Details
-  </router-link>
+      Session Details
+    </router-link>
     <router-link to="/configuration">
       Configuration
     </router-link>
@@ -21,34 +21,37 @@
           title="Settings"
           width="200"
           trigger="click"
-          >
-      <div>
-        <div>Widgets</div>
+      >
         <div>
-        <el-checkbox v-model="is_filename_panel_visible">Top panel</el-checkbox>
-        </div>
-        <div>
-        <el-checkbox v-model="is_inspector_panel_visible">Inspector</el-checkbox>
-        </div>
-        <div>
-          <el-checkbox v-model="is_sidebar_panel_visible">Side Bar</el-checkbox>
-        </div>
-        <div>
-          <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
-        </div>
-        <div>
-          <el-checkbox v-model="is_variables_panel_visible">Variables</el-checkbox>
-        </div>
-        <div>
-          <el-checkbox v-model="is_stack_visible">Stack</el-checkbox>
-        </div>
+          <div>Widgets</div>
+          <div>
+            <el-checkbox v-model="is_filename_panel_visible">Top panel</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_inspector_panel_visible">Inspector</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_sidebar_panel_visible">Side Bar</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_stack_graph_panel_visible">Graph Canvas</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_variables_panel_visible">Variables</el-checkbox>
+          </div>
+          <div>
+            <el-checkbox v-model="is_stack_visible">Stack</el-checkbox>
+          </div>
 
-        <div >UI</div>
-        <div>
-          <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
-        </div>
+          <div>UI</div>
+          <div>
+            <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
+          </div>
 
-      </div>
+        </div>
         <el-button size="mini" slot="reference" icon="el-icon-setting"></el-button>
       </el-popover>
 
@@ -62,6 +65,18 @@
 <script>
   import PcConnectionStatus from '../components/connection-status.component'
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
+
+  function autoGets (panel_name) {
+    return {
+      get () {
+        return this.is_panel_visible(panel_name)
+      },
+      set (value) {
+        this.will_toggle_ui_panel(panel_name)
+
+      },
+    }
+  }
   export default {
     name: "pc-header",
     components: {PcConnectionStatus},
@@ -69,41 +84,10 @@
 
       ...mapState(['tracing_sessions', 'ui']),
       ...mapGetters(['is_panel_visible']),
-      is_filename_panel_visible: {
-        get () {
-          return this.is_panel_visible('main.filename')
-        },
-        set (value) {
-          this.will_toggle_ui_panel('main.filename')
-
-        },
-      },
-      is_variables_panel_visible: {
-        get() {
-          return this.is_panel_visible('inspector.variables')
-        },
-        set (new_value) {
-          this.will_toggle_ui_panel('inspector.variables')
-
-        },
-      },
-      is_stack_visible: {
-        get() {
-          return this.is_panel_visible('inspector.stack')
-        },
-        set (new_value) {
-          this.will_toggle_ui_panel('inspector.stack')
-
-        },
-      },
-      is_ignored_files_panel_visible: {
-        get () {
-          return this.is_panel_visible('main.ignored_files')
-        },
-        set () {
-          this.will_toggle_ui_panel('main.ignored_files')
-        },
-      },
+      is_filename_panel_visible: autoGets('main.filename'),
+      is_variables_panel_visible: autoGets('inspector.variables'),
+      is_stack_visible:autoGets('inspector.stack'),
+      is_ignored_files_panel_visible:autoGets('main.ignored_files'),
       follow_cursor: {
         get () {
           return this.ui.follow_cursor
@@ -112,24 +96,9 @@
           this.toggle_ui_follow_cursor()
         },
       },
-      is_sidebar_panel_visible: {
-        get () {
-          return this.is_panel_visible('main.sidebar')
-        },
-        set (value) {
-          this.will_toggle_ui_panel('main.sidebar')
-
-        },
-      },
-      is_inspector_panel_visible : {
-        get () {
-          return this.is_panel_visible('widgets.inspector')
-        },
-        set (value) {
-          this.will_toggle_ui_panel('widgets.inspector')
-
-        }
-      }
+      is_sidebar_panel_visible: autoGets('main.sidebar'),
+      is_stack_graph_panel_visible: autoGets('main.stack-frames'),
+      is_inspector_panel_visible:  autoGets('widgets.inspector'),
 
 
     },
@@ -141,9 +110,11 @@
 
 <style lang="scss">
   @import "../styles/colors";
+
   .setting-icon {
     color: $color-apple-gray-text;
   }
+
   #nav {
     a {
       font-weight: bold;
