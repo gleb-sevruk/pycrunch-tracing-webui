@@ -39,6 +39,10 @@
             <el-checkbox v-model="is_stack_graph_panel_visible">Graph Canvas</el-checkbox>
           </div>
           <div>
+            <el-checkbox v-model="is_stack_graph_tooltip_visible">Graph Mouse Tooltip</el-checkbox>
+          </div>
+
+          <div>
             <el-checkbox v-model="is_variables_panel_visible">Variables</el-checkbox>
           </div>
           <div>
@@ -97,6 +101,7 @@
       },
       is_sidebar_panel_visible: autoGets('main.sidebar'),
       is_stack_graph_panel_visible: autoGets('main.stack-frames'),
+      is_stack_graph_tooltip_visible: autoGets('stack-graph.tooltip'),
       is_inspector_panel_visible:  autoGets('widgets.inspector'),
 
 

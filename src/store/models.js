@@ -1,3 +1,4 @@
+import fa from 'element-ui/src/locale/lang/fa'
 
 export class ExecutionCursor {
   line: number
@@ -79,8 +80,10 @@ export class LiveTracker {
 
 function default_widgets (): Array<UiWidget> {
   let array = []
-  function add_widget (name) {
-    array.push(new UiWidget(name))
+  function add_widget (name: string, enabled: boolean = true) {
+    let uiWidget = new UiWidget(name)
+    uiWidget.is_visible = enabled
+    array.push(uiWidget)
   }
 
   add_widget('main.filename')
@@ -90,7 +93,8 @@ function default_widgets (): Array<UiWidget> {
   add_widget('main.ignored_files')
   add_widget('inspector.stack')
   add_widget('inspector.variables')
-  add_widget('main.stack-frames')
+  add_widget('main.stack-frames', false)
+  add_widget('stack-graph.tooltip', true)
 
   return array
 }

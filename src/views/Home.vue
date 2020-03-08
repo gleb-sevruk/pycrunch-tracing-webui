@@ -65,7 +65,8 @@
         'step_out_backwards',
         'step_out_forward',
       ]),
-      ...mapMutations(['selected_index_will_change']),
+      ...mapMutations(['selected_index_will_change','will_toggle_ui_panel']),
+
       buttonWillClick () {
         this.load_command_buffer()
       },
@@ -87,6 +88,8 @@
           'shift+up': this.step_out_backwards,
           'shift+down': this.step_out_forward,
           'down': this.step_over,
+          'g' : () => this.will_toggle_ui_panel('main.stack-frames'),
+          'shift+g' : () => this.will_toggle_ui_panel('stack-graph.tooltip'),
 
         }
       }
