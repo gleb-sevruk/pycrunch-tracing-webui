@@ -107,8 +107,8 @@
 
 <style scoped>
   .stack {
-    height: 300px;
-    overflow: auto;
+    /*height: 300px;*/
+    /*overflow: auto;*/
   }
   .inspector-panel {
     max-height: 80vh;

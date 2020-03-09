@@ -15,6 +15,7 @@
   import {CodeEvent} from '../store/models'
   import {mapActions, mapGetters, mapMutations} from 'vuex'
   let stage = null
+  let viewport_to_gc = null
   class EventWithId{
     event: CodeEvent
     index: number
@@ -32,9 +33,13 @@
       }
     },
     beforeDestroy (): void {
-      if (stage) {
-        stage.destroy()
+      if (viewport_to_gc) {
+        viewport_to_gc.destroy()
       }
+      // if (stage) {
+      //   stage.destroy()
+      // }
+
     },
     methods: {
       ...mapMutations(['selected_index_will_change'])
@@ -61,9 +66,10 @@
         worldWidth: 1000,
         worldHeight: 1000,
         // noTicker: true,
+        divWheel: this.$refs.js_pixie_container,
         interaction: app.renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
       });
-
+      viewport_to_gc = viewport
 // add the viewport to the stage
 
       this.$refs.js_pixie_container.appendChild(app.view);
@@ -120,7 +126,11 @@
           //todo same function must have same color
           sprite.tint = 0xff0000 - current_index * 1000;
 
-          let time_diff = current.ts - previous.ts
+          // if our session is finished in 1 ms - we still want to see call graph
+          let scale_factor = 1
+          // scale_factor *= 1000
+
+          let time_diff = (current.ts - previous.ts) * scale_factor
           sprite.width = time_diff
           let box_h = 20
           sprite.height = box_h
@@ -147,7 +157,7 @@
               // or method end
               target_index = current_index
             }
-            self.selected_index_will_change(target_index)
+            self.selected_index_will_change(Number.parseInt(target_index))
           });
           total_boxes++
           let microseconds = 50

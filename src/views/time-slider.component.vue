@@ -1,6 +1,6 @@
 <template>
   <div class="slider-dock mx-4">
-    <el-slider v-model="slider_position" :show-tooltip="false" :debounce="600" :max="total_events - 1"></el-slider>
+    <el-slider v-if="total_events > 0" v-model="slider_position" :show-tooltip="false" :debounce="600" :max="total_events - 1"></el-slider>
   </div>
 </template>
 <script>
