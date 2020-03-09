@@ -65,7 +65,7 @@
         'step_out_backwards',
         'step_out_forward',
       ]),
-      ...mapMutations(['selected_index_will_change','will_toggle_ui_panel']),
+      ...mapMutations(['selected_index_will_change','will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
 
       buttonWillClick () {
         this.load_command_buffer()
@@ -90,6 +90,11 @@
           'down': this.step_over,
           'g' : () => this.will_toggle_ui_panel('main.stack-frames'),
           'shift+g' : () => this.will_toggle_ui_panel('stack-graph.tooltip'),
+          'shift+s' : () => this.will_toggle_ui_panel('main.sidebar'),
+          's' : () => this.will_toggle_ui_panel('inspector.stack'),
+          'i' : () => this.will_toggle_ui_panel('widgets.inspector'),
+          'v' : () => this.will_toggle_ui_panel('inspector.variables'),
+          'f' : () => this.toggle_ui_follow_cursor(),
 
         }
       }

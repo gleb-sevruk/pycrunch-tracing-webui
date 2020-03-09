@@ -27,31 +27,31 @@
             <el-checkbox v-model="is_filename_panel_visible">Top panel</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_inspector_panel_visible">Inspector</el-checkbox>
+            <el-checkbox v-model="is_inspector_panel_visible">(i) Inspector</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_sidebar_panel_visible">Side Bar</el-checkbox>
+            <el-checkbox v-model="is_sidebar_panel_visible">(Shift+s) Side Bar</el-checkbox>
           </div>
           <div>
             <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_stack_graph_panel_visible">Graph Canvas</el-checkbox>
+            <el-checkbox v-model="is_stack_graph_panel_visible">(g) Graph Canvas</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_stack_graph_tooltip_visible">Graph Mouse Tooltip</el-checkbox>
+            <el-checkbox v-model="is_stack_graph_tooltip_visible">(Shift+g) Graph Mouse Tooltip</el-checkbox>
           </div>
 
           <div>
-            <el-checkbox v-model="is_variables_panel_visible">Variables</el-checkbox>
+            <el-checkbox v-model="is_variables_panel_visible">(v) Variables</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_stack_visible">Stack</el-checkbox>
+            <el-checkbox v-model="is_stack_visible">(s) Stack</el-checkbox>
           </div>
 
           <div>UI</div>
           <div>
-            <el-checkbox v-model="follow_cursor">Follow Cursor</el-checkbox>
+            <el-checkbox v-model="follow_cursor">(f) Follow Cursor</el-checkbox>
           </div>
 
         </div>

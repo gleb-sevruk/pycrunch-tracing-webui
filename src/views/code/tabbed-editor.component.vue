@@ -1,8 +1,6 @@
 <template>
   <div class="tab-control">
-<!--    <div v-for="file in files" class="tab-control__file" @click="setSelected(file)">-->
-<!--      {{short_filename(file.filename)}}-->
-<!--    </div>-->
+
     <div class="container-fluid">
       <div class="row">
         <div class="col-6">
