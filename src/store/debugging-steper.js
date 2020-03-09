@@ -21,6 +21,11 @@ export function step_over_from_current_event (evt: CodeEvent, attempt_index: num
       if (next_event.event_name === 'method_exit') {
         depth_stack.pop()
         if (depth_stack.length === 0) {
+          // if next is not method enter again?
+          let next_event = global_state.command_buffer[attempt_index + 1]
+          if (next_event.event_name === 'method_enter') {
+            continue
+          }
           found_exit = true
           attempt_index += 1
         }
@@ -132,6 +137,15 @@ export function seek_back_in_current_method (evt: CodeEvent, attempt_index: numb
       if (next_event.event_name === 'method_enter') {
         depth_stack.pop()
         if (depth_stack.length === 0) {
+          let prev_event = event_at(attempt_index - 1)
+
+          // skip calls like: f(nested_f(nested_f2()))
+
+          if (prev_event.event_name === 'method_exit') {
+            // attempt_index -= 1
+            continue
+          }
+
           found_exit = true
           attempt_index -= 1
         }

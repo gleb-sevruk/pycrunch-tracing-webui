@@ -11,9 +11,6 @@
         <pc-tabbed-editor></pc-tabbed-editor>
         <pc-stack-frames v-if="is_panel_visible('main.stack-frames')"/>
         <pc-ignored-files v-if="is_panel_visible('main.ignored_files')"></pc-ignored-files>
-        <div ref="myCanvasContainer" class="canvas__container js-canvas__container">
-          <!--      <canvas ref="myCanvas" class="js-canvas" width="700" height="400"></canvas>-->
-        </div>
       </div>
     </div>
   </div>
