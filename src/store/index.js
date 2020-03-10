@@ -32,7 +32,7 @@ function getState (): MyState {
 }
 
 
-let socket = io('http://0.0.0.0:8080')
+let socket = io('http://127.0.0.1:8080')
 
 export default new Vuex.Store({
   state: getState(),
