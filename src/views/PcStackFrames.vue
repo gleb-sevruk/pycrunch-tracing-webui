@@ -28,8 +28,36 @@
   class DrawState {
     viewport: Viewport
     needle: PIXI.Graphics
-
+    size: Size
   }
+  let style = new PIXI.TextStyle({
+    fontFamily: "Arial",
+    fontSize: 36,
+    fill: "white",
+    stroke: '#ff3300',
+    strokeThickness: 4,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowBlur: 4,
+    dropShadowAngle: Math.PI / 6,
+    dropShadowDistance: 6,
+  });
+  let style_function = new PIXI.TextStyle({
+    fontFamily: "Arial",
+    fontSize: 14,
+    fill: "white",
+
+  });
+
+  class Size {
+    width: number
+    height: number
+    constructor (width: number, height: number) {
+      this.width = width
+      this.height = height
+    }
+  }
+
   let draw_state = new DrawState()
 
   export default {
@@ -70,7 +98,7 @@
           .moveTo(0, line_top)
           .lineTo(last_timestamp, line_top);
 
-        let total_marks = 10
+        let total_marks = Math.round(last_timestamp / 1000)
 
         function lerp (value, limit_to_max) {
           if (value > limit_to_max) {
@@ -133,11 +161,8 @@
 
     mounted (): void {
       let self = this
-      // create viewport
-      let type = "WebGL"
-      if(!PIXI.utils.isWebGLSupported()){
-        type = "canvas"
-      }
+      draw_state.size = new Size(1000, 1000)
+      let win_size = new Size(window.innerWidth, window.innerHeight)
       this.$refs.js_pixie_container.addEventListener('wheel', e => {
         e.preventDefault()
       }, {passive: false})
@@ -145,13 +170,13 @@
         {
           forceCanvas: true,
 
-          antialias:true, width: window.innerWidth, height: window.innerHeight
+          antialias:true, width: win_size.width, height: win_size.height
         });
-      var viewport = new Viewport({
-        screenWidth: window.innerWidth,
-        screenHeight: window.innerHeight,
-        worldWidth: 1000,
-        worldHeight: 1000,
+      let viewport = new Viewport({
+        screenWidth: win_size.width,
+        screenHeight: win_size.height,
+        worldWidth: draw_state.size.width,
+        worldHeight: draw_state.size.height,
         // noTicker: true,
         divWheel: this.$refs.js_pixie_container,
         interaction: app.renderer.interaction
@@ -173,24 +198,7 @@
       if (global_state.command_buffer.length <= 0){
         return
       }
-      let style = new PIXI.TextStyle({
-        fontFamily: "Arial",
-        fontSize: 36,
-        fill: "white",
-        stroke: '#ff3300',
-        strokeThickness: 4,
-        dropShadow: true,
-        dropShadowColor: "#000000",
-        dropShadowBlur: 4,
-        dropShadowAngle: Math.PI / 6,
-        dropShadowDistance: 6,
-      });
-      let style_function = new PIXI.TextStyle({
-        fontFamily: "Arial",
-        fontSize: 14,
-        fill: "white",
-
-      });
+      let max_y: number = 0
       let lastX = 0
       let lastY = 0
       let stack = []
@@ -224,6 +232,10 @@
           let box_h = 20
           sprite.height = box_h
           lastY = stack.length * box_h + 2
+          if (max_y < lastY) {
+            max_y = lastY
+          }
+
           sprite.position.set(previous.ts, lastY);
 
           sprite.interactive = true;
@@ -269,6 +281,16 @@
       let message2 = new PIXI.Text("total_text_boxes " +total_text_boxes , style);
       message2.position.set(-420, -120);
       viewport.addChild(message2);
+
+      let last_timestamp = global_state.command_buffer[global_state.command_buffer.length - 1].ts
+      let tres = 200
+
+      viewport.resize(win_size.width, win_size.height, last_timestamp + tres, max_y+ tres)
+      viewport.clamp({direction: 'all'})
+      viewport.clampZoom({direction: 'all',maxWidth:last_timestamp + tres, minHeight: 20})
+      viewport.fit()
+
+
       this.draw_timeline(viewport)
 
       this.draw_needle()
