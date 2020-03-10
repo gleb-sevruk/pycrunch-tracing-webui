@@ -5,7 +5,9 @@ class global {
   entire_command_buffer: Array<CodeEvent> = []
   command_buffer: Array<CodeEvent> = []
   all_stacks: Array<StackFrame> = []
-
+  event_at(index: number) : CodeEvent {
+    return this.command_buffer[index]
+  }
 }
 
 let global1 = new global()

@@ -11,6 +11,7 @@
   "dependencies": {
     "@pixi/canvas-renderer": "^5.2.1",
     "bootstrap": "^4.4.1",
+    "color": "^3.1.2",
     "core-js": "^3.6.4",
     "element-theme-dark": "^1.0.3",
     "element-ui": "^2.13.0",
