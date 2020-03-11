@@ -115,6 +115,7 @@ export class UiState {
   panels: Array<UiWidget> = default_widgets()
   follow_cursor: boolean = true
   file_filters: Array<string> = []
+  folder_filters: Array<string> = []
 
   ignore_file (filename: string) {
     console.log(filename)
@@ -122,9 +123,20 @@ export class UiState {
       this.file_filters.push(filename)
     }
   }
+  ignore_folder (folder: string) {
+    if (this.folder_filters.indexOf(folder) < 0) {
+      this.folder_filters.push(folder)
+    }
+  }
+
+  unignore_folder (folder: string) {
+    let indexOf = this.folder_filters.indexOf(folder)
+    if (indexOf >= 0) {
+      this.folder_filters.splice(indexOf, 1)
+    }
+  }
 
   unignore_file (filename: string) {
-    console.log(filename)
     let indexOf = this.file_filters.indexOf(filename)
     if (indexOf >= 0) {
       this.file_filters.splice(indexOf, 1)
@@ -134,7 +146,19 @@ export class UiState {
   is_filtered (command: CodeEvent) {
     // debugger
     let file = command.cursor.file
-    return this.file_filters.indexOf(file) >= 0
+    for (let folder in this.folder_filters) {
+      if (!this.folder_filters.hasOwnProperty(folder)) {
+        continue
+      }
+
+      let current_candidate_folder = this.folder_filters[folder]
+      if (file.startsWith(current_candidate_folder)) {
+        return true
+      }
+    }
+
+    let is_file_ignored = this.file_filters.indexOf(file) >= 0
+    return is_file_ignored
   }
 
   is_panel_visible (panel: string) {

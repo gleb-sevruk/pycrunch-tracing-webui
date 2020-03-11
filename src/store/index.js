@@ -2,12 +2,14 @@
 import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import io from 'socket.io-client'
-import {short} from '../views/code/short-filename'
+import {parents, short} from '../views/code/short-filename'
 import {parse_protobuf_datastream} from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
 import {seek_back_in_current_method, seek_step_out_backwards,
   seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
+
+import {EventBus} from '../shared/event-bus'
 
 Vue.use(Vuex)
 
@@ -55,9 +57,16 @@ export default new Vuex.Store({
     did_unignore_file (state: MyState, filename: string) {
       state.ui.unignore_file(filename)
     },
+    did_unignore_folder (state: MyState, folder: string) {
+      state.ui.unignore_folder(folder)
+    },
     did_ignore_file (state: MyState, filename: string) {
       state.ui.ignore_file(filename)
     },
+    did_ignore_folder (state: MyState, folder: string) {
+      state.ui.ignore_folder(folder)
+    },
+
     did_connect (state: MyState) {
       state.is_connected = true
     },
@@ -86,6 +95,8 @@ export default new Vuex.Store({
       })
       global_state.command_buffer = back_buffer
       state.total_events = global_state.command_buffer.length
+      EventBus.$emit('display_events_did_update', state.total_events)
+
     },
     did_receive_buffer (state: MyState, payload) {
       let useProtobuf = true
@@ -207,9 +218,18 @@ export default new Vuex.Store({
       context.commit('did_unignore_file', filename)
       context.commit('update_filtered_events')
     },
+    unignore_folder (context: ActionContext, folder: string) {
+      context.commit('did_unignore_folder', folder)
+      context.commit('update_filtered_events')
+    },
     ignore_current_file (context: ActionContext) {
       let selected_event: CodeEvent = context.state.selected_event
       context.commit('did_ignore_file', selected_event.cursor.file)
+      context.commit('update_filtered_events')
+    },
+    ignore_folder (context: ActionContext, payload: string) {
+      let selected_event: CodeEvent = context.state.selected_event
+      context.commit('did_ignore_folder', payload)
       context.commit('update_filtered_events')
     },
     load_file (context: ActionContext, payload) {
@@ -235,8 +255,6 @@ export default new Vuex.Store({
         // context.dispatch('load_command_buffer')
         context.dispatch('load_sessions')
         context.dispatch('load_profiles')
-
-
       }
 
       socket.on('disconnect', () => {
@@ -281,19 +299,12 @@ export default new Vuex.Store({
           let e = data.event_name
           if (e === 'new_tracker') {
             context.commit('new_tracker_did_connect', data)
-
-
           } else if (e === 'tracker_did_disconnect') {
             context.commit('tracker_did_disconnect', data.sid)
-
-
           }
 
         }
       })
-      // // socket.connect()
-      // socket.emit('event', {data:1})
-
     },
     load_command_buffer (context: ActionContext) {
       socket.emit('event', {
@@ -371,6 +382,20 @@ export default new Vuex.Store({
     },
     short_filename: state => (full: string, until: number) => {
       return short(full, until)
+    },
+    ignore_suggestions:  (state: MyState) => {
+      let selected_event = state.selected_event
+      if (selected_event) {
+        // socket.emit('event', {
+        //   action: 'load_file',
+        //   file_to_load: selected_event.cursor.file,
+        // })
+        // return state.files.find((value: CodeFile) => value.filename === selected_event.cursor.file)
+
+        let result = parents(selected_event.cursor.file, 5)
+        console.log('called parents')
+        return result
+      }
     },
     selected_file: (state: MyState) => {
       let selected_event = state.selected_event

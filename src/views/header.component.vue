@@ -33,7 +33,7 @@
             <el-checkbox v-model="is_sidebar_panel_visible">(Shift+s) Side Bar</el-checkbox>
           </div>
           <div>
-            <el-checkbox v-model="is_ignored_files_panel_visible">Ignored Files</el-checkbox>
+            <el-checkbox v-model="is_ignored_files_panel_visible">(Shift+i) Ignored Files</el-checkbox>
           </div>
           <div>
             <el-checkbox v-model="is_stack_graph_panel_visible">(g) Graph Canvas</el-checkbox>

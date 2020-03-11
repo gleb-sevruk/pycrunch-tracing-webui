@@ -3,6 +3,7 @@
     Ignored files
 
     <div class="files">
+    <div v-for="folder in ui.folder_filters"><el-button @click="unignore_folder(folder)">(directory) {{folder}}</el-button></div>
     <div v-for="file in ui.file_filters"><el-button @click="unignore_file(file)">{{file}}</el-button></div>
   </div>
   </div>
@@ -17,7 +18,10 @@
       ...mapState(['ui'])
     },
     methods: {
-      ...mapActions(['unignore_file'])
+      ...mapActions([
+        'unignore_file',
+        'unignore_folder',
+      ])
 
     },
   }

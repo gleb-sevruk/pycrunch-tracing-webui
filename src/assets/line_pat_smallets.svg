@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 63 (92445) - https://sketch.com -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square" stroke-opacity="0.492761145">
+        <line x1="0.5" y1="0.5" x2="0.5" y2="19.5" id="Line" stroke="#979797"></line>
+        <line x1="1.5" y1="0.5" x2="19.5" y2="0.5" id="Line-2" stroke="#979797"></line>
+    </g>
+</svg>

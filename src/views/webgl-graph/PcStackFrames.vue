@@ -16,6 +16,7 @@
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
   import {FileColors} from '../../graph-canvas'
   import styles from './styles'
+  import {EventBus} from '../../shared/event-bus'
   let Color = require('color')
 
   let _colors = new FileColors()
@@ -40,6 +41,21 @@
     // if our session is finished in 1 ms - we still want to see call graph
     // scale_factor *= 1000
     scale_factor: number = 1
+    // start and end event from which timeline is drawn
+    span: MethodSpan = null
+
+    is_scoped() : boolean {
+      return this.span !== null
+    }
+
+    will_scope_to (start: CodeEvent, end: CodeEvent) {
+      let no_need_for = 0
+      this.span = new MethodSpan(new EventWithId(start, no_need_for), new EventWithId(end, no_need_for))
+    }
+
+    will_exit_scope() {
+      this.span = null
+    }
   }
 
   class Size {
@@ -72,6 +88,7 @@
     stack: Array<number, CodeEvent> = []
     perf: RenderStats  = new RenderStats()
     start_ts: number = 0
+    viewport : Size = null
     will_start_from (ts: number) {
       this.start_ts = ts
     }
@@ -85,7 +102,9 @@
       let microseconds = 50
       return time_diff > microseconds
     }
-
+    viewport_size_will_change(width: number, height: number) {
+      this.viewport =new Size(width, height)
+    }
   }
 
   let _render_state = new RenderState()
@@ -201,7 +220,9 @@
           });
           sprite.on('click', (event) => {
             if (event.data.originalEvent.metaKey) {
-              this.scope_to_method(span.start.event, span.end.event)
+              this.scope_to_method(span.start.event, span.end.event, self)
+              this.invalidate_viewport_configuration()
+              state.viewport.fit()
               return
             }
             // go to event
@@ -214,7 +235,8 @@
 
             self.selected_index_will_change(Number.parseInt(target_index))
           });
-          _render_state.perf.total_boxes++
+          _render_state.perf.new_box()
+
 
           // todo use pixi TextMetrics
           if (_render_state.should_draw_text(time_diff)) {
@@ -242,13 +264,27 @@
           _render_state.lastX += time_diff + 1
         }
       },
-      scope_to_method: function(start_event: CodeEvent, end_event: CodeEvent) {
+      invalidate_viewport_configuration: function () {
+        const treshold = 200
+        state.viewport.resize(
+          state.win_size.width,
+          state.win_size.height,
+          _render_state.viewport.width + treshold,
+          _render_state.viewport.height  + treshold
+        )
+        state.viewport.clamp({direction: 'all'})
+        state.viewport.clampZoom({
+          direction: 'all',
+          maxWidth: _render_state.viewport.width + treshold,
+          minHeight: 20
+        })
+      },
+      scope_to_method: function(start_event: CodeEvent, end_event: CodeEvent, self) {
         // this.demo_animation(prev)
-        let self = this
         _render_state = new RenderState()
         _render_state.will_start_from(start_event.ts)
         state.viewport.removeChildren()
-
+        state.will_scope_to(start_event, end_event)
 
         let start_from = global_state.command_buffer.indexOf(start_event)
         let stop_at = global_state.command_buffer.indexOf(end_event)
@@ -261,20 +297,7 @@
         for (let current_index = start_from; current_index <= stop_at; current_index++) {
           this.draw_single_event(current_index, self)
         }
-
-        let tres = 200
-        state.viewport.resize(
-          state.win_size.width,
-          state.win_size.height,
-          total_time_here * state.scale_factor + tres,
-          _render_state.max_y + tres)
-        state.viewport.clamp({direction: 'all'})
-        state.viewport.clampZoom({
-          direction: 'all',
-          maxWidth: (total_time_here * state.scale_factor) + tres,
-          minHeight: 20
-        })
-        state.viewport.fit()
+        _render_state.viewport_size_will_change(total_time_here * state.scale_factor, _render_state.max_y)
 
         this.draw_needle()
       },
@@ -318,6 +341,16 @@
 
         }
       },
+      redraw_all: function (self) {
+        this.render_event_graph(self)
+        this.draw_grid()
+
+        this.draw_timeline()
+
+        this.draw_needle()
+        this.invalidate_viewport_configuration()
+        state.viewport.fit()
+      },
       initialize_and_draw: function () {
         let self = this
         this.initialize_pixi_renderer()
@@ -325,13 +358,7 @@
         if (global_state.command_buffer.length <= 0) {
           return
         }
-
-        this.render_event_graph(self)
-        this.draw_grid()
-
-        this.draw_timeline()
-
-        this.draw_needle()
+        this.redraw_all(self)
       },
       draw_needle () {
         if (!this.selected_event) {
@@ -406,6 +433,11 @@
       },
 
       render_event_graph: function(self) {
+        _render_state = new RenderState()
+        _render_state.will_start_from(0)
+        state.viewport.removeChildren()
+
+        state.will_exit_scope()
         state.scale_factor = 1
 
         for (let current_index in global_state.command_buffer) {
@@ -415,28 +447,17 @@
 
           this.draw_single_event(current_index, self)
         }
+
         let message = new PIXI.Text(" total_boxes " + _render_state.perf.total_boxes, styles.style);
         message.position.set(0, -60);
         state.viewport.addChild(message);
-        let message2 = new PIXI.Text("total_text_boxes " + _render_state.perf.total_boxes, styles.style);
+        let message2 = new PIXI.Text("total_text_boxes " + _render_state.perf.total_text_boxes, styles.style);
         message2.position.set(0, -120);
         state.viewport.addChild(message2);
 
         let last_timestamp = global_state.command_buffer[global_state.command_buffer.length - 1].ts
-        let tres = 200
+        _render_state.viewport_size_will_change(last_timestamp, _render_state.max_y)
 
-        state.viewport.resize(
-          state.win_size.width,
-          state.win_size.height,
-          last_timestamp + tres,
-          _render_state.max_y + tres)
-        state.viewport.clamp({direction: 'all'})
-        state.viewport.clampZoom({
-          direction: 'all',
-          maxWidth: last_timestamp + tres,
-          minHeight: 20
-        })
-        state.viewport.fit()
       },
       draw_grid () {
 
@@ -445,7 +466,6 @@
 // crop the texture to show just 100 px
         let last_known = 0
         let worldWidth = state.viewport.worldWidth
-        console.log(worldWidth)
         while (last_known <= worldWidth) {
           var texture2 = new PIXI.Texture(landscapeTexture, new PIXI.Rectangle(0,0 , 1000, 1000));
           var background = new PIXI.Sprite(texture2);
@@ -460,6 +480,19 @@
       }
     },
     mounted (): void {
+      let self = this
+      EventBus.$on('display_events_did_update', payload => {
+        state.app.ticker.stop()
+        if (state.is_scoped()) {
+          this.scope_to_method(state.span.start.event, state.span.end.event, self)
+
+        } else {
+          this.render_event_graph(self)
+        }
+        state.app.ticker.start()
+
+      });
+
       this.initialize_and_draw()
 
     },

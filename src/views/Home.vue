@@ -88,6 +88,7 @@
           'g' : () => this.will_toggle_ui_panel('main.stack-frames'),
           'shift+g' : () => this.will_toggle_ui_panel('stack-graph.tooltip'),
           'shift+s' : () => this.will_toggle_ui_panel('main.sidebar'),
+          'shift+i' : () => this.will_toggle_ui_panel('main.ignored_files'),
           's' : () => this.will_toggle_ui_panel('inspector.stack'),
           'i' : () => this.will_toggle_ui_panel('widgets.inspector'),
           'v' : () => this.will_toggle_ui_panel('inspector.variables'),
