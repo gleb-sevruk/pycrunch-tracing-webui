@@ -27,7 +27,7 @@
   import PcToolbarSurface from './toolbars/toolbar-surface.component'
   import PcLeftSidebar from './left-sidebar/left.sidebar.component'
   import PcIgnoredFiles from './ignored-files.component'
-  import PcStackFrames from './PcStackFrames'
+  import PcStackFrames from './webgl-graph/PcStackFrames'
 
 
   export default {

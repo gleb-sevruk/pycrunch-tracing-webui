@@ -12,9 +12,10 @@
 <script>
   import * as PIXI from 'pixi.js'
   import { Viewport } from 'pixi-viewport'
-  import {CodeEvent} from '../store/models'
+  import {CodeEvent} from '../../store/models'
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
-  import {FileColors} from '../graph-canvas'
+  import {FileColors} from '../../graph-canvas'
+  import styles from './styles'
   let Color = require('color')
 
   let _colors = new FileColors()
@@ -39,32 +40,8 @@
     // if our session is finished in 1 ms - we still want to see call graph
     // scale_factor *= 1000
     scale_factor: number = 1
-    begin_from: number = 0
   }
-  let style = new PIXI.TextStyle({
-    fontFamily: "Arial",
-    fontSize: 36,
-    fill: "white",
-    stroke: '#ff3300',
-    strokeThickness: 4,
-    dropShadow: true,
-    dropShadowColor: "#000000",
-    dropShadowBlur: 4,
-    dropShadowAngle: Math.PI / 6,
-    dropShadowDistance: 6,
-  });
-  let style_function = new PIXI.TextStyle({
-    fontFamily: "Arial",
-    fontSize: 14,
-    fill: "white",
 
-  });
-  let style_pidr = new PIXI.TextStyle({
-    fontFamily: "Arial",
-    fontSize: 18,
-    fill: "#006900",
-
-  });
   class Size {
     width: number
     height: number
@@ -73,8 +50,54 @@
       this.height = height
     }
   }
+  let box_h = 20
 
   let state = new DrawState()
+
+  class RenderStats {
+    total_boxes : number = 0
+    total_text_boxes : number = 0
+    new_box() {
+      this.total_boxes++
+    }
+    new_text() {
+      this.total_text_boxes++
+    }
+  }
+
+  class RenderState {
+    max_y: number = 0
+    lastX: number = 0
+    lastY: number = 0
+    stack: Array<number, CodeEvent> = []
+    perf: RenderStats  = new RenderStats()
+    start_ts: number = 0
+    will_start_from (ts: number) {
+      this.start_ts = ts
+    }
+    recalculate_last_y_based_on_stack_depth () {
+      this.lastY = this.stack.length * box_h + 2
+      if (this.max_y < this.lastY) {
+        this.max_y = this.lastY
+      }
+    }
+    should_draw_text (time_diff: number) {
+      let microseconds = 50
+      return time_diff > microseconds
+    }
+
+  }
+
+  let _render_state = new RenderState()
+
+  class MethodSpan {
+    start: EventWithId
+    end: EventWithId
+    constructor (start: EventWithId, end: EventWithId) {
+      this.start = start
+      this.end = end
+    }
+  }
 
   export default {
     name: 'pc-stack-frames',
@@ -104,7 +127,7 @@
       demo_animation: function (prev) {
         state.viewport.removeChildren()
         let full_text = 'ti pidr'
-        let message = new PIXI.Text('t', style_pidr);
+        let message = new PIXI.Text('t', styles.style_pidr);
         message.resolution = 2
         message.position.set(prev.ts, 10);
         state.viewport.addChild(message);
@@ -132,135 +155,119 @@
           // message.position -= 0.01 * delta;
         })
       },
+      draw_single_event: function (current_index, self) {
+        if (!global_state.command_buffer.hasOwnProperty(current_index)) {
+          return
+        }
+
+        let current: CodeEvent = global_state.event_at(current_index)
+        if (current.event_name === 'method_enter') {
+          _render_state.stack.push(new EventWithId(current, current_index))
+        }
+        if (current.event_name === 'method_exit') {
+          let previous_stack: EventWithId = _render_state.stack.pop()
+          let end = new EventWithId(current, current_index)
+          let span = new MethodSpan(previous_stack, end)
+
+
+          let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
+
+          let time_diff = (span.end.event.ts - span.start.event.ts) * state.scale_factor
+          let original_color = _colors.for_file_method(current.cursor.file, current.cursor.function_name, time_diff)
+          sprite.tint = original_color;
+
+          sprite.width = time_diff
+          sprite.height = box_h
+
+          _render_state.recalculate_last_y_based_on_stack_depth()
+
+
+          let relative_position_x = (span.start.event.ts - _render_state.start_ts) * state.scale_factor
+          sprite.position.set(relative_position_x, _render_state.lastY);
+
+          sprite.interactive = true;
+          // hit area is relative to parent sprite
+          sprite.hitArea = new PIXI.Rectangle(0, 0, time_diff, box_h);
+
+          sprite.on('mouseover', (event) => {
+            self.is_mouse_over_frame = true
+            self.current_frame = current
+            sprite.tint = styles.hover_color
+          });
+          sprite.on('mouseout', (event) => {
+            self.is_mouse_over_frame = false
+            self.current_frame = null
+            sprite.tint = original_color
+          });
+          sprite.on('click', (event) => {
+            if (event.data.originalEvent.metaKey) {
+              this.scope_to_method(span.start.event, span.end.event)
+              return
+            }
+            // go to event
+            // method start
+            let target_index = span.start.index
+            if (event.data.originalEvent.shiftKey) {
+              // or method end
+              target_index = current_index
+            }
+
+            self.selected_index_will_change(Number.parseInt(target_index))
+          });
+          _render_state.perf.total_boxes++
+
+          // todo use pixi TextMetrics
+          if (_render_state.should_draw_text(time_diff)) {
+            let skip_filename = false
+            if (_render_state.stack.length > 0) {
+              let upper_frame: EventWithId = _render_state.stack[_render_state.stack.length - 1];
+              if (upper_frame.event.cursor.file === current.cursor.file) {
+                skip_filename = true
+              }
+            }
+            let text
+            if (!skip_filename) {
+              text = this.short_filename(span.end.event.cursor.file, 1) + ':' + span.end.event.cursor.function_name
+            } else {
+              text = span.end.event.cursor.function_name + '()'
+            }
+
+            let message = new PIXI.Text(text, styles.style_function);
+            message.resolution = 2
+            message.position.set(relative_position_x, _render_state.lastY);
+            state.viewport.addChild(message);
+            _render_state.perf.new_text()
+          }
+
+          _render_state.lastX += time_diff + 1
+        }
+      },
       scope_to_method: function(start_event: CodeEvent, end_event: CodeEvent) {
         // this.demo_animation(prev)
         let self = this
+        _render_state = new RenderState()
+        _render_state.will_start_from(start_event.ts)
         state.viewport.removeChildren()
-        let max_y: number = 0
-        let lastX = 0
-        let lastY = 0
-        let stack = []
-        let total_boxes = 0
-        let total_text_boxes = 0
-        console.log('start_event', start_event)
-        console.log('end_event', end_event)
 
-        function should_draw_text (time_diff, microseconds) {
-          return time_diff > microseconds
-        }
+
         let start_from = global_state.command_buffer.indexOf(start_event)
         let stop_at = global_state.command_buffer.indexOf(end_event)
         console.log('start_from', start_from, 'stop_at', stop_at)
 
-        let begin_ts = start_event.ts
         let end_ts = end_event.ts
-        let total_time_here = end_ts - begin_ts
-        state.scale_factor = state.win_size.width / total_time_here * 5
-        state.begin_from = begin_ts
+        let total_time_here = end_ts - _render_state.start_ts
+        let multiplier = 5
+        state.scale_factor = state.win_size.width / total_time_here * multiplier
         for (let current_index = start_from; current_index <= stop_at; current_index++) {
-
-          if (!global_state.command_buffer.hasOwnProperty(current_index)) {
-            continue
-          }
-          console.log('current_index', current_index,'stop at', stop_at)
-          let current: CodeEvent = global_state.event_at(current_index)
-          if (current.event_name !== 'line')
-            console.log('current __loop', current)
-          if (current.event_name === 'method_enter') {
-
-            console.log('stack push', current)
-
-            stack.push(new EventWithId(current, current_index))
-          }
-          if (current.event_name === 'method_exit') {
-            console.log('stack pop', current)
-            let previous_stack: EventWithId = stack.pop()
-            let previous = previous_stack.event
-            let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
-            //todo same function must have same color
-
-            let time_diff = (current.ts - previous.ts ) * state.scale_factor
-            let original_color = _colors.for_file_method(current.cursor.file, current.cursor.function_name, time_diff)
-            sprite.tint = original_color;
-
-            sprite.width = time_diff
-            let box_h = 20
-            sprite.height = box_h
-            lastY = stack.length * box_h + 2
-            if (max_y < lastY) {
-              max_y = lastY
-            }
-
-            let relative_position_x = (previous.ts -  start_event.ts) * state.scale_factor
-            sprite.position.set(relative_position_x, lastY);
-            sprite.interactive = true;
-            // hit area is relative to parent sprite
-            sprite.hitArea = new PIXI.Rectangle(0, 0, time_diff, box_h);
-            sprite.on('mouseover', (event) => {
-              self.is_mouse_over_frame = true
-              self.current_frame = current
-              var x = Color("#279f00")
-              sprite.tint = x.rgbNumber()
-              // console.log(current)
-            });
-            sprite.on('mouseout', (event) => {
-              self.is_mouse_over_frame = false
-              self.current_frame = null
-              sprite.tint = original_color
-              // console.log(current)
-            });
-            sprite.on('click', (event) => {
-              if (event.data.originalEvent.metaKey) {
-                this.scope_to_method(previous, current)
-                //  scope to event
-                return
-              }
-              // go to event
-              // method start
-              let target_index = previous_stack.index
-              if (event.data.originalEvent.shiftKey) {
-                // or method end
-                target_index = current_index
-              }
-
-              self.selected_index_will_change(Number.parseInt(target_index))
-            });
-            total_boxes++
-            let microseconds = 50
-            // todo use pixi TextMetrics
-            if (should_draw_text(time_diff, microseconds)) {
-              let skip_filename = false
-              if (stack.length > 0) {
-                let upper_frame: EventWithId = stack[stack.length-1];
-                if (upper_frame.event.cursor.file === current.cursor.file) {
-                  skip_filename = true
-                }
-
-              }
-              let text
-              if (!skip_filename) {
-                text = this.short_filename(current.cursor.file, 1) +  ':' + current.cursor.function_name
-              } else {
-                text = current.cursor.function_name + '()'
-              }
-
-              let message = new PIXI.Text(text, style_function);
-              message.resolution = 2
-              message.position.set(relative_position_x, lastY);
-              state.viewport.addChild(message);
-              total_text_boxes++
-
-            }
-            lastX += time_diff + 1
-
-          }
+          this.draw_single_event(current_index, self)
         }
+
         let tres = 200
         state.viewport.resize(
           state.win_size.width,
           state.win_size.height,
           total_time_here * state.scale_factor + tres,
-          max_y + tres)
+          _render_state.max_y + tres)
         state.viewport.clamp({direction: 'all'})
         state.viewport.clampZoom({
           direction: 'all',
@@ -330,7 +337,7 @@
         if (!this.selected_event) {
           return
         }
-        let needle_ts = (this.selected_event.ts - state.begin_from) * state.scale_factor
+        let needle_ts = (this.selected_event.ts - _render_state.start_ts) * state.scale_factor
 
         function create_needle () {
           let needle = new PIXI.Graphics();
@@ -371,7 +378,6 @@
             width: state.win_size.width,
             height: state.win_size.height
           });
-
         let viewport = new Viewport({
           screenWidth: state.win_size.width,
           screenHeight: state.win_size.height,
@@ -395,6 +401,10 @@
           .decelerate();
 
       },
+      should_draw_text: function (time_diff, microseconds) {
+        return time_diff > microseconds
+      },
+
       render_event_graph: function(self) {
         let max_y: number = 0
         let lastX = 0
@@ -404,9 +414,6 @@
         let total_text_boxes = 0
         state.scale_factor = 1
 
-        function should_draw_text (time_diff, microseconds) {
-          return time_diff > microseconds
-        }
 
         for (let current_index in global_state.command_buffer) {
           if (!global_state.command_buffer.hasOwnProperty(current_index)) {
@@ -428,9 +435,8 @@
             sprite.tint = original_color;
 
             sprite.width = time_diff
-            let box_h = 20
             sprite.height = box_h
-            lastY = stack.length * box_h + 2
+            lastY = (stack.length * box_h + 2)
             if (max_y < lastY) {
               max_y = lastY
             }
@@ -443,8 +449,7 @@
             sprite.on('mouseover', (event) => {
               self.is_mouse_over_frame = true
               self.current_frame = current
-              var x = Color("#279f00")
-              sprite.tint = x.rgbNumber()
+              sprite.tint = styles.hover_color
               // console.log(current)
             });
             sprite.on('mouseout', (event) => {
@@ -472,7 +477,7 @@
             total_boxes++
             let microseconds = 50
             // todo use pixi TextMetrics
-            if (should_draw_text(time_diff, microseconds)) {
+            if (self.should_draw_text(time_diff, microseconds)) {
               let skip_filename = false
               if (stack.length > 0) {
                 let upper_frame: EventWithId = stack[stack.length-1];
@@ -490,7 +495,7 @@
 
               // let color = Color(sprite.tint)
               // text = color.hex() + ' -> ' + color.hsl().string(0)
-              let message = new PIXI.Text(text, style_function);
+              let message = new PIXI.Text(text, styles.style_function);
               message.resolution = 2
               message.position.set(previous.ts, lastY);
               state.viewport.addChild(message);
@@ -501,10 +506,10 @@
 
           }
         }
-        let message = new PIXI.Text(" total_boxes " + total_boxes, style);
+        let message = new PIXI.Text(" total_boxes " + total_boxes, styles.style);
         message.position.set(0, -60);
         state.viewport.addChild(message);
-        let message2 = new PIXI.Text("total_text_boxes " + total_text_boxes, style);
+        let message2 = new PIXI.Text("total_text_boxes " + total_text_boxes, styles.style);
         message2.position.set(0, -120);
         state.viewport.addChild(message2);
 
@@ -526,7 +531,7 @@
       },
       draw_grid () {
 
-        var landscapeTexture = PIXI.Texture.from('/grid2m.png')
+        var landscapeTexture = PIXI.Texture.from('/grid10x10.png')
 
 // crop the texture to show just 100 px
         let last_known = 0
@@ -536,8 +541,11 @@
           var texture2 = new PIXI.Texture(landscapeTexture, new PIXI.Rectangle(0,0 , 1000, 1000));
           var background = new PIXI.Sprite(texture2);
           background.position.x = last_known;
+          let dimensions = 1000 * state.scale_factor
+          background.width = dimensions
+          background.height = dimensions
           background.position.y = 0;
-          last_known+= 1000
+          last_known+= dimensions
           state.viewport.addChildAt( background, 0 );
         }
       }
@@ -553,7 +561,7 @@
   }
 </script>
 <style scoped lang="scss">
-  @import "../styles/colors";
+  @import "../../styles/colors";
   .pixie--root {
     bottom: 30px;
   }
