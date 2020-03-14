@@ -3,7 +3,7 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import io from 'socket.io-client'
 import {parents, short} from '../views/code/short-filename'
-import {parse_protobuf_datastream} from './protobuf_message_parsing'
+import {FileWithId, parse_protobuf_datastream} from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
 import {seek_back_in_current_method, seek_step_out_backwards,
@@ -17,7 +17,7 @@ class MyState {
   is_connected: boolean = false
   current_session: TracingSession = null
   selected_file: CodeFile
-
+  file_refs: Array<FileWithId> = []
   files: Array<CodeFile> = []
   active_trackers: Array<LiveTracker> = []
   selected_index: number = 0
@@ -33,9 +33,9 @@ function getState (): MyState {
   return new MyState()
 }
 
-
-let socket = io('http://127.0.0.1:8080')
-
+let url = 'http://192.168.1.174:8080'
+let local_url = 'http://127.0.0.1:8080'
+let socket = io(url)
 export default new Vuex.Store({
   state: getState(),
   mutations: {
@@ -108,6 +108,12 @@ export default new Vuex.Store({
         global_state.entire_command_buffer = msg.command_buffer
         global_state.all_stacks = msg.stacks
 
+        msg.files.forEach((_: FileWithId) =>  {
+          global_state.files[_.id] = _.file
+        })
+
+        state.file_refs.length = 0
+        state.file_refs = [...msg.files]
         // let x = goog.require('proto.TraceSession');
         // debugger
       } else {
@@ -252,7 +258,6 @@ export default new Vuex.Store({
       async function on_connect () {
         context.commit('did_connect')
         console.log(socket.connected) // true
-        // context.dispatch('load_command_buffer')
         context.dispatch('load_sessions')
         context.dispatch('load_profiles')
       }
@@ -267,9 +272,9 @@ export default new Vuex.Store({
 
         let files = new Set()
         //
-        global_state.command_buffer.forEach(value => {
-          if (value.cursor) {
-            files.add(value.cursor.file)
+        global_state.files.forEach((value: string) => {
+          if (value) {
+            files.add(value)
           }
         })
 
@@ -305,12 +310,6 @@ export default new Vuex.Store({
 
         }
       })
-    },
-    load_command_buffer (context: ActionContext) {
-      socket.emit('event', {
-        action: 'load_buffer',
-      })
-
     },
     load_sessions (context: ActionContext) {
       socket.emit('event', {
@@ -381,7 +380,16 @@ export default new Vuex.Store({
       return state.ui.is_panel_visible(panel)
     },
     short_filename: state => (full: string, until: number) => {
+      if (typeof(full) === 'number') {
+        return short(global_state.file_at(full), until)
+      }
       return short(full, until)
+    },
+    file_from_id: state => (file_id: number) => {
+      let found = global_state.file_at(file_id)
+      if (found) {
+        return found
+      }
     },
     ignore_suggestions:  (state: MyState) => {
       let selected_event = state.selected_event
@@ -397,6 +405,7 @@ export default new Vuex.Store({
         return result
       }
     },
+
     selected_file: (state: MyState) => {
       let selected_event = state.selected_event
       if (selected_event) {
@@ -404,7 +413,8 @@ export default new Vuex.Store({
         //   action: 'load_file',
         //   file_to_load: selected_event.cursor.file,
         // })
-        return state.files.find((value: CodeFile) => value.filename === selected_event.cursor.file)
+        let fileref = global_state.file_at(selected_event.cursor.file)
+        return state.files.find((value: CodeFile) => value.filename === fileref)
       }
     },
 

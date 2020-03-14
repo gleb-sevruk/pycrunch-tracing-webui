@@ -1,12 +1,14 @@
 <template>
   <div class="pixie--root fixed-bottom">
+    <div class="bg-apple-gray-5" v-if="is_panel_visible('stack-graph.render_stats')">{{display_render_state}}</div>
     <div v-if="is_panel_visible('stack-graph.tooltip') && is_mouse_over_frame"
          class="stack-overlay-tooltip fixed-top bg-apple-gray-2" >
-      {{current_frame.cursor.function_name}}, {{current_frame.cursor.file}}
+      {{current_frame.cursor.function_name}}, {{file_from_id(current_frame.cursor.file)}}
     </div>
     <div ref="js_pixie_container"  class="pixie--container">
 
     </div>
+
   </div>
 </template>
 <script>
@@ -67,6 +69,7 @@
     }
   }
   let box_h = 20
+  const treshold = 200
 
   let state = new DrawState()
 
@@ -124,6 +127,20 @@
       return {
         is_mouse_over_frame: false,
         current_frame: null,
+        display_render_state: {
+          world_size: {
+            width: null,
+            height: null,
+          },
+          visible_area: {
+            x: null,
+            y: null,
+            width: null,
+            height: null,
+            scale: null,
+          }
+
+        }
       }
     },
     beforeDestroy (): void {
@@ -183,6 +200,7 @@
         if (current.event_name === 'method_enter') {
           _render_state.stack.push(new EventWithId(current, current_index))
         }
+
         if (current.event_name === 'method_exit') {
           let previous_stack: EventWithId = _render_state.stack.pop()
           let end = new EventWithId(current, current_index)
@@ -192,7 +210,7 @@
           let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
 
           let time_diff = (span.end.event.ts - span.start.event.ts) * state.scale_factor
-          let original_color = _colors.for_file_method(current.cursor.file, current.cursor.function_name, time_diff)
+          let original_color = _colors.for_file_method(global_state.file_at(current.cursor.file), current.cursor.function_name, time_diff)
           sprite.tint = original_color;
 
           sprite.width = time_diff
@@ -249,7 +267,8 @@
             }
             let text
             if (!skip_filename) {
-              text = this.short_filename(span.end.event.cursor.file, 1) + ':' + span.end.event.cursor.function_name
+
+              text = this.short_filename(global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
             } else {
               text = span.end.event.cursor.function_name + '()'
             }
@@ -264,8 +283,18 @@
           _render_state.lastX += time_diff + 1
         }
       },
+      invalidate_display_stats: function () {
+        this.display_render_state.world_size.width = _render_state.viewport.width + treshold
+        this.display_render_state.world_size.height = _render_state.viewport.height + treshold
+        let visibleBounds = state.viewport.getVisibleBounds()
+        this.display_render_state.visible_area.width = visibleBounds.width
+        this.display_render_state.visible_area.height = visibleBounds.height
+        this.display_render_state.visible_area.x = visibleBounds.x
+        this.display_render_state.visible_area.y = visibleBounds.y
+        this.display_render_state.visible_area.scale = state.viewport.scale.x
+
+      },
       invalidate_viewport_configuration: function () {
-        const treshold = 200
         state.viewport.resize(
           state.win_size.width,
           state.win_size.height,
@@ -276,8 +305,11 @@
         state.viewport.clampZoom({
           direction: 'all',
           maxWidth: _render_state.viewport.width + treshold,
-          minHeight: 20
+          minHeight: 80,
+          // maxHeight: _render_state.viewport.height * 3 + treshold
         })
+
+        this.invalidate_display_stats()
       },
       scope_to_method: function(start_event: CodeEvent, end_event: CodeEvent, self) {
         // this.demo_animation(prev)
@@ -393,8 +425,9 @@
         }
       },
       initialize_pixi_renderer: function () {
+        let self = this
         state.size = new Size(1000, 1000)
-        state.win_size = new Size(window.innerWidth, window.innerHeight)
+        state.win_size = new Size(window.innerWidth, window.innerHeight)  // 50vh
         this.$refs.js_pixie_container.addEventListener('wheel', e => {
           e.preventDefault()
         }, {passive: false})
@@ -427,6 +460,12 @@
           .wheel()
           .decelerate();
 
+        viewport.on('drag-end', () => {
+          self.invalidate_display_stats()
+        })
+        viewport.on('zoomed-end', () => {
+          self.invalidate_display_stats()
+        })
       },
       should_draw_text: function (time_diff, microseconds) {
         return time_diff > microseconds
@@ -497,7 +536,7 @@
 
     },
     computed: {
-      ...mapGetters(['short_filename','is_panel_visible']),
+      ...mapGetters(['short_filename','is_panel_visible', 'file_from_id']),
       ...mapState(['selected_event']),
     },
   }

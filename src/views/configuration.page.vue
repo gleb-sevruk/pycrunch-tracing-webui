@@ -33,6 +33,10 @@
               </div>
             </el-form-item>
           </el-form>
+          <div>
+            Record Variables During Trace
+            <el-switch v-model="profile_details.trace_variables">Record variables</el-switch>
+          </div>
           <div v-for="exclusion in profile_details.exclusions" class="p-2 m-2 elevation-02 text-light">
             <el-button class="bg-apple-gray-2 mr-2" @click="remove_ignore_rule(exclusion)" >Remove</el-button>
             {{exclusion}}

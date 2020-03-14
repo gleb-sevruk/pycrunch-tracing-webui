@@ -23,6 +23,7 @@
       >
         <div>
           <div>Widgets</div>
+<!--          todo maybe use v-for widgets?-->
           <div>
             <el-checkbox v-model="is_filename_panel_visible">Top panel</el-checkbox>
           </div>
@@ -41,7 +42,9 @@
           <div>
             <el-checkbox v-model="is_stack_graph_tooltip_visible">(Shift+g) Graph Mouse Tooltip</el-checkbox>
           </div>
-
+          <div>
+            <el-checkbox v-model="is_graph_render_stats_visible">(r) Graph Render Stats</el-checkbox>
+          </div>
           <div>
             <el-checkbox v-model="is_variables_panel_visible">(v) Variables</el-checkbox>
           </div>
@@ -103,7 +106,7 @@
       is_stack_graph_panel_visible: autoGets('main.stack-frames'),
       is_stack_graph_tooltip_visible: autoGets('stack-graph.tooltip'),
       is_inspector_panel_visible:  autoGets('widgets.inspector'),
-
+      is_graph_render_stats_visible: autoGets('stack-graph.render_stats'),
 
     },
     methods: {

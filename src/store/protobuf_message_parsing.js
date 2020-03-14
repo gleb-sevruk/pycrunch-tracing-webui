@@ -4,9 +4,21 @@ import {CodeEvent, ExecutionCursor, StackFrame, Variable} from './models'
 let goog = require('google-protobuf');
 let messages = require("../proto/message_pb")
 
+export class FileWithId {
+  id: number
+  file: string
+
+  constructor (id: number, file: string) {
+    this.id = id
+    this.file = file
+  }
+}
+
 class ParsedTimeline {
   stacks: Array<StackFrame> = []
   command_buffer: Array<CodeEvent> = []
+  files: Array<FileWithId> = []
+
 }
 
 export function parse_protobuf_datastream (payload: any): ParsedTimeline {
@@ -65,7 +77,18 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
     back_stack.push(x)
   })
 
+  let back_stack_files = []
+  let files = xx.getFilesList()
+  files.forEach(_ => {
+    let x = new FileWithId(
+      _.getId(),
+      _.getFile(),
+    )
+    back_stack_files.push(x)
+  })
+
   parsed.command_buffer = [...back_buffer]
   parsed.stacks = [...back_stack]
+  parsed.files = [...back_stack_files]
   return parsed
 }

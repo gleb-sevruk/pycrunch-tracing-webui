@@ -52,7 +52,7 @@
     },
     methods: {
       ...mapActions([
-        'connect', 'load_command_buffer',
+        'connect',
         'set_selected_index',
         'debug_previous_line',
         'debug_next_line',
@@ -65,7 +65,6 @@
       ...mapMutations(['selected_index_will_change','will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
 
       buttonWillClick () {
-        this.load_command_buffer()
       },
 
       arrow_keys_will_become_disabled () {
@@ -93,6 +92,7 @@
           'i' : () => this.will_toggle_ui_panel('widgets.inspector'),
           'v' : () => this.will_toggle_ui_panel('inspector.variables'),
           'f' : () => this.toggle_ui_follow_cursor(),
+          'r': () => this.will_toggle_ui_panel('stack-graph.render_stats'),
 
         }
       }
