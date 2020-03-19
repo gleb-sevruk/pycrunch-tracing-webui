@@ -146,7 +146,9 @@ export class UiState {
 
   is_filtered (command: CodeEvent) {
     // debugger
-    let file = command.cursor.file
+
+    let file_id = command.cursor.file
+    let file = global_state.file_at(file_id)
     for (let folder in this.folder_filters) {
       if (!this.folder_filters.hasOwnProperty(folder)) {
         continue
@@ -158,7 +160,7 @@ export class UiState {
       }
     }
 
-    let is_file_ignored = this.file_filters.indexOf(file) >= 0
+    let is_file_ignored = this.file_filters.indexOf(file_id) >= 0
     return is_file_ignored
   }
 

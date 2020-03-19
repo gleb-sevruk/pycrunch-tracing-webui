@@ -91,12 +91,20 @@
     stack: Array<number, CodeEvent> = []
     perf: RenderStats  = new RenderStats()
     start_ts: number = 0
+    end_ts: number = 0
+    global_offset: number = 0
     viewport : Size = null
     will_start_from (ts: number) {
       this.start_ts = ts
     }
+    will_end_at (ts: number) {
+      this.end_ts = ts
+    }
+    adjust_global_offset(number_of_vertical_boxes: number) {
+      this.global_offset = number_of_vertical_boxes * box_h + 2
+    }
     recalculate_last_y_based_on_stack_depth () {
-      this.lastY = this.stack.length * box_h + 2
+      this.lastY = this.global_offset + this.stack.length * box_h + 2
       if (this.max_y < this.lastY) {
         this.max_y = this.lastY
       }
@@ -191,6 +199,91 @@
           // message.position -= 0.01 * delta;
         })
       },
+      draw_span: function (span, self, in_span: MethodSpan = null) {
+        let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
+
+        let time_diff = (span.end.event.ts - span.start.event.ts) * state.scale_factor
+        let original_color = _colors.for_file_method(global_state.file_at(span.end.event.cursor.file), span.end.event.cursor.function_name, time_diff)
+        sprite.tint = original_color;
+        if (!in_span) {
+          sprite.width = time_diff
+        }
+        else {
+          sprite.width = (in_span.end.event.ts) * state.scale_factor
+        }
+        sprite.height = box_h
+
+        _render_state.recalculate_last_y_based_on_stack_depth()
+        let relative_position_x
+        if (!in_span){
+          relative_position_x = (span.start.event.ts - _render_state.start_ts) * state.scale_factor
+        } else {
+          relative_position_x = 0
+
+        }
+        sprite.position.set(relative_position_x, _render_state.lastY);
+
+        sprite.interactive = true;
+        // hit area is relative to parent sprite
+        sprite.hitArea = new PIXI.Rectangle(0, 0, time_diff, box_h);
+
+        sprite.on('mouseover', (event) => {
+          self.is_mouse_over_frame = true
+          self.current_frame = span.end.event
+          sprite.tint = styles.hover_color
+        });
+        sprite.on('mouseout', (event) => {
+          self.is_mouse_over_frame = false
+          self.current_frame = null
+          sprite.tint = original_color
+        });
+        sprite.on('click', (event) => {
+          if (event.data.originalEvent.metaKey) {
+            this.scope_to_method(span.start.event, span.end.event, self)
+            this.invalidate_viewport_configuration()
+            // state.viewport.fit()
+            return
+          }
+          // go to event
+          // method start
+          let target_index = span.start.index
+          if (event.data.originalEvent.shiftKey) {
+            // or method end
+            target_index = span.end.index
+          }
+
+          self.selected_index_will_change(Number.parseInt(target_index))
+        });
+        _render_state.perf.new_box()
+
+
+        // todo use pixi TextMetrics
+        if (_render_state.should_draw_text(time_diff)) {
+          let skip_filename = false
+          if (_render_state.stack.length > 0) {
+            let upper_frame: EventWithId = _render_state.stack[_render_state.stack.length - 1];
+            if (upper_frame.event.cursor.file === span.end.event.cursor.file) {
+              skip_filename = true
+            }
+          }
+          let text
+          if (!skip_filename) {
+
+            text = this.short_filename(global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
+          } else {
+            text = span.end.event.cursor.function_name + '()'
+          }
+
+          let message = new PIXI.Text(text, styles.style_function);
+          message.resolution = 2
+          message.position.set(relative_position_x, _render_state.lastY);
+          state.viewport.addChild(message);
+          _render_state.perf.new_text()
+        }
+
+        _render_state.lastX += time_diff + 1
+
+      },
       draw_single_event: function (current_index, self) {
         if (!global_state.command_buffer.hasOwnProperty(current_index)) {
           return
@@ -205,82 +298,7 @@
           let previous_stack: EventWithId = _render_state.stack.pop()
           let end = new EventWithId(current, current_index)
           let span = new MethodSpan(previous_stack, end)
-
-
-          let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
-
-          let time_diff = (span.end.event.ts - span.start.event.ts) * state.scale_factor
-          let original_color = _colors.for_file_method(global_state.file_at(current.cursor.file), current.cursor.function_name, time_diff)
-          sprite.tint = original_color;
-
-          sprite.width = time_diff
-          sprite.height = box_h
-
-          _render_state.recalculate_last_y_based_on_stack_depth()
-
-
-          let relative_position_x = (span.start.event.ts - _render_state.start_ts) * state.scale_factor
-          sprite.position.set(relative_position_x, _render_state.lastY);
-
-          sprite.interactive = true;
-          // hit area is relative to parent sprite
-          sprite.hitArea = new PIXI.Rectangle(0, 0, time_diff, box_h);
-
-          sprite.on('mouseover', (event) => {
-            self.is_mouse_over_frame = true
-            self.current_frame = current
-            sprite.tint = styles.hover_color
-          });
-          sprite.on('mouseout', (event) => {
-            self.is_mouse_over_frame = false
-            self.current_frame = null
-            sprite.tint = original_color
-          });
-          sprite.on('click', (event) => {
-            if (event.data.originalEvent.metaKey) {
-              this.scope_to_method(span.start.event, span.end.event, self)
-              this.invalidate_viewport_configuration()
-              state.viewport.fit()
-              return
-            }
-            // go to event
-            // method start
-            let target_index = span.start.index
-            if (event.data.originalEvent.shiftKey) {
-              // or method end
-              target_index = current_index
-            }
-
-            self.selected_index_will_change(Number.parseInt(target_index))
-          });
-          _render_state.perf.new_box()
-
-
-          // todo use pixi TextMetrics
-          if (_render_state.should_draw_text(time_diff)) {
-            let skip_filename = false
-            if (_render_state.stack.length > 0) {
-              let upper_frame: EventWithId = _render_state.stack[_render_state.stack.length - 1];
-              if (upper_frame.event.cursor.file === current.cursor.file) {
-                skip_filename = true
-              }
-            }
-            let text
-            if (!skip_filename) {
-
-              text = this.short_filename(global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
-            } else {
-              text = span.end.event.cursor.function_name + '()'
-            }
-
-            let message = new PIXI.Text(text, styles.style_function);
-            message.resolution = 2
-            message.position.set(relative_position_x, _render_state.lastY);
-            state.viewport.addChild(message);
-            _render_state.perf.new_text()
-          }
-
-          _render_state.lastX += time_diff + 1
+          self.draw_span(span, self)
         }
       },
       invalidate_display_stats: function () {
@@ -311,6 +329,52 @@
 
         this.invalidate_display_stats()
       },
+      collect_outer_stack: function (until: number, trail_starts_from: number) : Array<MethodSpan> {
+        let results: Array<MethodSpan> = []
+        let stack: Array<number, CodeEvent> = []
+        for (let current_index = 0; current_index < until; current_index++) {
+          if (!global_state.command_buffer.hasOwnProperty(current_index)) {
+            continue
+          }
+
+          let current: CodeEvent = global_state.event_at(current_index)
+          if (current.event_name === 'method_enter') {
+            stack.push(new EventWithId(current, current_index))
+          }
+          if (current.event_name === 'method_exit') {
+            stack.pop()
+          }
+        }
+
+        let ends_at = global_state.command_buffer.length
+        let tail_stack: Array<number, CodeEvent> = []
+
+        for (let current_index = trail_starts_from + 1; current_index < ends_at; current_index++) {
+          if (!global_state.command_buffer.hasOwnProperty(current_index)) {
+            continue
+          }
+
+          let current: CodeEvent = global_state.event_at(current_index)
+          if (current.event_name === 'method_enter') {
+            tail_stack.push(new EventWithId(current, current_index))
+          }
+          if (current.event_name === 'method_exit') {
+            if (tail_stack.length > 0) {
+              tail_stack.pop()
+              continue
+            }
+            else {
+              let span: MethodSpan = null
+              let staring_event = stack.pop()
+              span = new MethodSpan(staring_event, new EventWithId(current, current_index))
+              results.push(span)
+            }
+
+          }
+        }
+        return results
+
+      },
       scope_to_method: function(start_event: CodeEvent, end_event: CodeEvent, self) {
         // this.demo_animation(prev)
         _render_state = new RenderState()
@@ -326,10 +390,24 @@
         let total_time_here = end_ts - _render_state.start_ts
         let multiplier = 5
         state.scale_factor = state.win_size.width / total_time_here * multiplier
+        let stack = this.collect_outer_stack(start_from, stop_at)
+
+        console.log('stack', stack)
+        let total_global_offset = 0
+        while (stack.length > 0) {
+          let current_span = stack.pop()
+          self.draw_span(current_span, self, new MethodSpan(
+            new EventWithId(start_event, start_from),
+            new EventWithId(end_event, stop_at)),
+          )
+          total_global_offset += 1
+          _render_state.adjust_global_offset(total_global_offset)
+        }
         for (let current_index = start_from; current_index <= stop_at; current_index++) {
           this.draw_single_event(current_index, self)
         }
-        _render_state.viewport_size_will_change(total_time_here * state.scale_factor, _render_state.max_y)
+        _render_state.viewport_size_will_change(total_time_here * state.scale_factor, _render_state.max_y +  _render_state.global_offset)
+        this.draw_stats()
 
         this.draw_needle()
       },
@@ -471,6 +549,14 @@
         return time_diff > microseconds
       },
 
+      draw_stats: function () {
+        let message = new PIXI.Text(" total_boxes " + _render_state.perf.total_boxes, styles.style);
+        message.position.set(0, -60);
+        state.viewport.addChild(message);
+        let message2 = new PIXI.Text("total_text_boxes " + _render_state.perf.total_text_boxes, styles.style);
+        message2.position.set(0, -120);
+        state.viewport.addChild(message2);
+      },
       render_event_graph: function(self) {
         _render_state = new RenderState()
         _render_state.will_start_from(0)
@@ -486,13 +572,7 @@
 
           this.draw_single_event(current_index, self)
         }
-
-        let message = new PIXI.Text(" total_boxes " + _render_state.perf.total_boxes, styles.style);
-        message.position.set(0, -60);
-        state.viewport.addChild(message);
-        let message2 = new PIXI.Text("total_text_boxes " + _render_state.perf.total_text_boxes, styles.style);
-        message2.position.set(0, -120);
-        state.viewport.addChild(message2);
+        this.draw_stats()
 
         let last_timestamp = global_state.command_buffer[global_state.command_buffer.length - 1].ts
         _render_state.viewport_size_will_change(last_timestamp, _render_state.max_y)
@@ -528,6 +608,7 @@
         } else {
           this.render_event_graph(self)
         }
+
         state.app.ticker.start()
 
       });

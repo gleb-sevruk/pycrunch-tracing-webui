@@ -10,7 +10,7 @@
         <span class="text-secondary" >event:</span> {{selected_event.cursor.function_name}}, {{short_filename(selected_event.cursor.file, 2)}} {{selected_event.event_name}}:{{selected_event.cursor.line}}
       </div>
     </a>
-    <div v-if="selected_event" title="event timestamp in format ms.microsecs (1 millisecond=1000 microseconds) ">{{selected_event.ts | round(3)}} ms</div>
+    <div v-if="selected_event" title="event timestamp in format ms.microsecs (1 millisecond=1000 microseconds) ">{{selected_event.ts | round(6)}} ms</div>
     <div v-if="is_panel_visible('inspector.variables')" class="locals" >
 <!--      <span class="text-secondary">locals</span>-->
       <div class="all-locals" v-if="selected_event">

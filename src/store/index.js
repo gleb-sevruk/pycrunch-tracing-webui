@@ -399,10 +399,12 @@ export default new Vuex.Store({
         //   file_to_load: selected_event.cursor.file,
         // })
         // return state.files.find((value: CodeFile) => value.filename === selected_event.cursor.file)
-
-        let result = parents(selected_event.cursor.file, 5)
-        console.log('called parents')
-        return result
+        let file_id = selected_event.cursor.file
+        let found = global_state.file_at(file_id)
+        if (found) {
+          let result = parents(found, 5)
+          return result
+        }
       }
     },
 

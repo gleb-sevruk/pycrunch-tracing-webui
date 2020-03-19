@@ -18,6 +18,10 @@ class global {
 
 let global1 = new global()
 window.global_state = global1
+let toConsole = function() {
+  window.global_state.command_buffer.forEach((_, i) => console.log( '#'+i+ ': ' + Math.round((_.ts + Number.EPSILON) * 100) / 100  + ' ms'))
+}
+window.global_state.to_console = toConsole
 // some test code
 // let count = 1
 // window.global_state.entire_command_buffer.forEach(value => {
