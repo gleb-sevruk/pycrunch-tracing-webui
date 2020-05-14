@@ -204,7 +204,6 @@ export default new Vuex.Store({
       const file = native_event.target.files[0];
       let name = file.name
       const reader = new FileReader();
-      console.log('sss')
       reader.onload = (e: any) => {
         global_state.entire_command_buffer.length = 0
         global_state.all_stacks.length = 0

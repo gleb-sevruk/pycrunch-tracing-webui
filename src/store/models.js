@@ -1,5 +1,3 @@
-import fa from 'element-ui/src/locale/lang/fa'
-
 export class ExecutionCursor {
   line: number
   file: string

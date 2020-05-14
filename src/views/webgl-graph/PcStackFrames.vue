@@ -21,6 +21,13 @@
   import {EventBus} from '../../shared/event-bus'
   let Color = require('color')
 
+  function lerp (value, limit_to_max) {
+    if (value > limit_to_max) {
+      return limit_to_max
+    }
+    return value
+  }
+
   let _colors = new FileColors()
   window.___colors_files = _colors
   let stage = null
@@ -110,6 +117,7 @@
       }
     }
     should_draw_text (time_diff: number) {
+      // todo decision should be based upon current scale/scope
       let microseconds = 50
       return time_diff > microseconds
     }
@@ -203,7 +211,8 @@
         let sprite = state.viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
 
         let time_diff = (span.end.event.ts - span.start.event.ts) * state.scale_factor
-        let original_color = _colors.for_file_method(global_state.file_at(span.end.event.cursor.file), span.end.event.cursor.function_name, time_diff)
+        let original_color = _colors.for_file_method(
+          global_state.file_at(span.end.event.cursor.file), span.end.event.cursor.function_name, time_diff)
         sprite.tint = original_color;
         if (!in_span) {
           sprite.width = time_diff
@@ -269,7 +278,8 @@
           let text
           if (!skip_filename) {
 
-            text = this.short_filename(global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
+            text = this.short_filename(
+              global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
           } else {
             text = span.end.event.cursor.function_name + '()'
           }
@@ -388,7 +398,7 @@
 
         let end_ts = end_event.ts
         let total_time_here = end_ts - _render_state.start_ts
-        let multiplier = 5
+        let multiplier = 1
         state.scale_factor = state.win_size.width / total_time_here * multiplier
         let stack = this.collect_outer_stack(start_from, stop_at)
 
@@ -406,7 +416,9 @@
         for (let current_index = start_from; current_index <= stop_at; current_index++) {
           this.draw_single_event(current_index, self)
         }
-        _render_state.viewport_size_will_change(total_time_here * state.scale_factor, _render_state.max_y +  _render_state.global_offset)
+        _render_state.viewport_size_will_change(
+          total_time_here * state.scale_factor, _render_state.max_y +  _render_state.global_offset
+        )
         this.draw_stats()
 
         this.draw_needle()
@@ -427,12 +439,7 @@
 
         let total_marks = Math.round(last_timestamp / 1000)
 
-        function lerp (value, limit_to_max) {
-          if (value > limit_to_max) {
-            return limit_to_max
-          }
-          return value
-        }
+
 
         for (let index = 0; index <= total_marks; index++) {
           let color = 0xffffff
@@ -563,23 +570,24 @@
         state.viewport.removeChildren()
 
         state.will_exit_scope()
-        state.scale_factor = 1
+        let first_timestamp = global_state.command_buffer[0].ts
+        let last_timestamp = global_state.command_buffer[global_state.command_buffer.length - 1].ts
+        let total_time_here = last_timestamp - first_timestamp
+        let multiplier = 1
+        state.scale_factor = state.win_size.width / total_time_here * multiplier
 
         for (let current_index in global_state.command_buffer) {
-          if (!global_state.command_buffer.hasOwnProperty(current_index)) {
-            continue
-          }
-
           this.draw_single_event(current_index, self)
         }
         this.draw_stats()
 
-        let last_timestamp = global_state.command_buffer[global_state.command_buffer.length - 1].ts
-        _render_state.viewport_size_will_change(last_timestamp, _render_state.max_y)
+        _render_state.viewport_size_will_change(state.scale_factor * last_timestamp, _render_state.max_y)
 
       },
       draw_grid () {
-
+        if (state.scale_factor > 10) {
+          return
+        }
         var landscapeTexture = PIXI.Texture.from('/grid10x10.png')
 
 // crop the texture to show just 100 px
