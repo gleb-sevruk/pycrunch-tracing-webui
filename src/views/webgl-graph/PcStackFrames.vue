@@ -214,12 +214,14 @@
         let original_color = _colors.for_file_method(
           global_state.file_at(span.end.event.cursor.file), span.end.event.cursor.function_name, time_diff)
         sprite.tint = original_color;
+        let sprite_w
         if (!in_span) {
-          sprite.width = time_diff
+          sprite_w = time_diff
         }
         else {
-          sprite.width = (in_span.end.event.ts) * state.scale_factor
+          sprite_w = (in_span.end.event.ts) * state.scale_factor
         }
+        sprite.width = sprite_w
         sprite.height = box_h
 
         _render_state.recalculate_last_y_based_on_stack_depth()
@@ -234,7 +236,7 @@
 
         sprite.interactive = true;
         // hit area is relative to parent sprite
-        sprite.hitArea = new PIXI.Rectangle(0, 0, time_diff, box_h);
+        sprite.hitArea = new PIXI.Rectangle(0, 0, sprite_w, box_h);
 
         sprite.on('mouseover', (event) => {
           self.is_mouse_over_frame = true
@@ -278,17 +280,28 @@
           let text
           if (!skip_filename) {
 
-            text = this.short_filename(
-              global_state.file_at(span.end.event.cursor.file), 1) + ':' + span.end.event.cursor.function_name
+            let shortFilename = this.short_filename(
+              global_state.file_at(span.end.event.cursor.file), 1)
+            text = shortFilename + ':' + span.end.event.cursor.function_name
+
+            let text_metrics = PIXI.TextMetrics.measureText(text, styles.style_function)
+            if (text_metrics.width > sprite_w) {
+              text = shortFilename
+            }
           } else {
             text = span.end.event.cursor.function_name + '()'
           }
+          let text_metrics = PIXI.TextMetrics.measureText(text, styles.style_function)
+          if (text_metrics.width < sprite_w) {
+            let message = new PIXI.Text(text, styles.style_function);
 
-          let message = new PIXI.Text(text, styles.style_function);
-          message.resolution = 2
-          message.position.set(relative_position_x, _render_state.lastY);
-          state.viewport.addChild(message);
-          _render_state.perf.new_text()
+            message.resolution = 2
+            message.position.set(relative_position_x, _render_state.lastY);
+            state.viewport.addChild(message);
+
+            _render_state.perf.new_text()
+          }
+
         }
 
         _render_state.lastX += time_diff + 1

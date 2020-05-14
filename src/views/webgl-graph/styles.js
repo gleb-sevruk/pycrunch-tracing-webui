@@ -14,8 +14,8 @@ let style = new PIXI.TextStyle({
   dropShadowDistance: 6,
 });
 let style_function = new PIXI.TextStyle({
-  fontFamily: "Arial",
-  fontSize: 14,
+  fontFamily: "sans-serif",
+  fontSize: 13,
   fill: "white",
 
 });
