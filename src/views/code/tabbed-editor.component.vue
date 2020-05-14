@@ -103,7 +103,6 @@
     user-select: none;
     border-right: 1px solid #6c757d;
     margin-right: 1em;
-
   }
   .file__line:hover {
     /*background: darken(#15522B, 10);*/

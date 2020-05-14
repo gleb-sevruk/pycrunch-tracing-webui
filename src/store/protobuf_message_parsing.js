@@ -13,20 +13,26 @@ export class FileWithId {
     this.file = file
   }
 }
+export class FileWithContents {
+  id: number
+  contents: ArrayBuffer
+
+  constructor (id: number, contents: ArrayBuffer) {
+    this.id = id
+    this.contents = contents
+  }
+}
+
 
 class ParsedTimeline {
   stacks: Array<StackFrame> = []
   command_buffer: Array<CodeEvent> = []
   files: Array<FileWithId> = []
+  files_contents: Array<FileWithContents> = []
 
 }
 
-export function parse_protobuf_datastream (payload: any): ParsedTimeline {
-  let parsed = new ParsedTimeline()
-
-  let xx = messages.TraceSession.deserializeBinary(payload)
-  let events = xx.getEventsList()
-
+function parse_command_buffer (events) {
   let back_buffer = []
   events.forEach(_ => {
     let cursor_pb = _.getCursor()
@@ -59,9 +65,34 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
         all_returns.push(new Variable(__.getName(), __.getValue()))
       })
     }
-    let x = new CodeEvent(_.getEventName(),  cursor, _.getStackId(), all_locals, all_input, all_returns, _.getTs())
+    let x = new CodeEvent(_.getEventName(), cursor, _.getStackId(), all_locals, all_input, all_returns, _.getTs())
     back_buffer.push(x)
   })
+  return back_buffer
+}
+
+function get_files_with_contents (xx) {
+  let file_with_contents = []
+  let files2 = xx.getFilesList()
+  files2.forEach(_ => {
+    let x = new FileWithContents(
+      _.getId(),
+      _.getContent(),
+    )
+    file_with_contents.push(x)
+  })
+
+  return file_with_contents
+}
+
+
+export function parse_protobuf_datastream (payload: any): ParsedTimeline {
+  let parsed = new ParsedTimeline()
+
+  let xx = messages.TraceSession.deserializeBinary(payload)
+  let events = xx.getEventsList()
+
+  let back_buffer = parse_command_buffer(events)
   let back_stack = []
   parsed.stacks.length = 0
 
@@ -87,8 +118,23 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
     back_stack_files.push(x)
   })
 
+
   parsed.command_buffer = [...back_buffer]
   parsed.stacks = [...back_stack]
   parsed.files = [...back_stack_files]
+  return parsed
+}
+
+
+export function parse_files_with_contents (payload: any): ParsedTimeline {
+  let parsed = new ParsedTimeline()
+
+  let xx = messages.FilesInSession.deserializeBinary(payload)
+
+  let file_with_contents  = get_files_with_contents(xx)
+
+  parsed.command_buffer = []
+  parsed.stacks = []
+  parsed.files_contents = [...file_with_contents]
   return parsed
 }

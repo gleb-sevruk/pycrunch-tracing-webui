@@ -1,7 +1,7 @@
 <template>
   <span class="bg">
   <i v-if="is_connected" class="el-icon-circle-check" style="color: green;"></i>
-  <i v-if="!is_connected" class="el-icon-circle-check" style="color: green;"></i>
+  <i v-if="!is_connected" title="Connection to server is not established" class="el-icon-circle-close" style="color: darkred;"></i>
   </span>
 <!--  <div class="">-->
 <!--    {{is_connected}}-->

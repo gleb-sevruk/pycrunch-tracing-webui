@@ -3,7 +3,7 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import io from 'socket.io-client'
 import {parents, short} from '../views/code/short-filename'
-import {FileWithId, parse_protobuf_datastream} from './protobuf_message_parsing'
+import { FileWithId, parse_files_with_contents, parse_protobuf_datastream } from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
 import {seek_back_in_current_method, seek_step_out_backwards,
@@ -34,7 +34,7 @@ function getState (): MyState {
 }
 
 let url = 'http://192.168.1.174:8080'
-let local_url = 'http://127.0.0.1:8080'
+url = 'http://127.0.0.1:8080'
 let socket = io(url)
 export default new Vuex.Store({
   state: getState(),
@@ -99,29 +99,21 @@ export default new Vuex.Store({
 
     },
     did_receive_buffer (state: MyState, payload) {
-      let useProtobuf = true
-      if (useProtobuf) {
-        let msg = parse_protobuf_datastream(payload)
-        global_state.entire_command_buffer.length = 0
-        global_state.all_stacks.length = 0
+      let msg = parse_protobuf_datastream(payload)
+      global_state.entire_command_buffer.length = 0
+      global_state.all_stacks.length = 0
 
-        global_state.entire_command_buffer = msg.command_buffer
-        global_state.all_stacks = msg.stacks
+      global_state.entire_command_buffer = msg.command_buffer
+      global_state.all_stacks = msg.stacks
 
-        msg.files.forEach((_: FileWithId) =>  {
-          global_state.files[_.id] = _.file
-        })
-
-        state.file_refs.length = 0
-        state.file_refs = [...msg.files]
-        // let x = goog.require('proto.TraceSession');
-        // debugger
-      } else {
-        let parse = JSON.parse(payload)
-        global_state.entire_command_buffer.length = 0
-        global_state.entire_command_buffer = [...parse]
-
-      }
+      msg.files.forEach((_: FileWithId) =>  {
+        global_state.files[_.id] = _.file
+      })
+      // todo do i need it?
+      state.file_refs.length = 0
+      state.file_refs = [...msg.files]
+      // let x = goog.require('proto.TraceSession');
+      // debugger
     },
     file_did_load (state: MyState, payload) {
       let x = new CodeFile()
@@ -207,6 +199,97 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    will_open_local_trace(context: ActionContext, native_event: any) {
+
+      const file = native_event.target.files[0];
+      let name = file.name
+      const reader = new FileReader();
+      console.log('sss')
+      reader.onload = (e: any) => {
+        global_state.entire_command_buffer.length = 0
+        global_state.all_stacks.length = 0
+
+        let buffer : ArrayBuffer = e.target.result
+        let total_length = buffer.byteLength
+        let z = new DataView(buffer)
+        let header_size = 4
+        let offset = 0
+        // signature
+        let signature = z.getInt32(offset)
+        if (signature !== 15051991) {
+          console.error('File signature is invalid')
+          EventBus.$emit('trace_load_will_fail', name)
+          return
+        }
+        offset += 4
+        let file_header_size = z.getInt32(offset)
+        offset += 4
+        // const bytes = new Uint8Array([ 0xff,0xff,0xff,0xff,   0xff,0xff,0xff,0xff ]);
+        // split 64-bit number into two 32-bit numbers
+        const right = z.getUint32(offset);  // 4294967295
+        const left = z.getUint32(offset + 4); // 4294967295
+        offset += 8
+
+        // combine the 2 32-bit numbers using max 32-bit val 0xffffffff
+        const event_stream_end_offset = left + 2**32*right;
+
+
+        offset = file_header_size + 8
+        signature = z.getInt32(offset)
+        if (signature !== 15051991) {
+          console.error('Trailing file signature is invalid')
+          EventBus.$emit('trace_load_will_fail', name)
+          return
+        }
+        offset += 4
+        while (offset < event_stream_end_offset) {
+
+          // (get_payment_methods) should be: 115981
+          let chunk_size = z.getInt32(offset)
+          offset += header_size
+
+          let slice = buffer.slice(offset , offset + chunk_size)
+
+          let msg = parse_protobuf_datastream(slice)
+
+          global_state.entire_command_buffer.push(...msg.command_buffer)
+          global_state.all_stacks.push(...msg.stacks)
+
+          msg.files.forEach((_: FileWithId) =>  {
+            global_state.files[_.id] = _.file
+          })
+
+          offset += chunk_size
+
+        }
+        // files
+        let files_chunk_size = z.getInt32(offset)
+        offset += header_size
+        let slice = buffer.slice(offset)
+        let msg = parse_files_with_contents(slice)
+        msg.files_contents.forEach(_ => {
+          let enc = new TextDecoder();
+
+          let contents = 'File cannot be loaded...'
+          if (_.contents) {
+            contents = enc.decode(_.contents)
+          }
+          let payload = {
+            filename: global_state.file_at(_.id),
+            contents: contents
+          }
+          context.commit('file_did_load', payload )
+
+        })
+
+        context.commit('update_filtered_events')
+        context.commit('selected_index_will_change', 0)
+        // console.log(zalupa)
+      };
+
+      reader.readAsArrayBuffer(file);
+
+    },
     load_profile_details (context: ActionContext, profile_name: string) {
       socket.emit('event', {
         action: 'load_profile_details',

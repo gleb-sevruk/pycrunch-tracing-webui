@@ -28,6 +28,7 @@
   import PcLeftSidebar from './left-sidebar/left.sidebar.component'
   import PcIgnoredFiles from './ignored-files.component'
   import PcStackFrames from './webgl-graph/PcStackFrames'
+  import {EventBus} from '../shared/event-bus'
 
 
   export default {
@@ -47,7 +48,9 @@
     },
     mounted (): void {
       this.connect()
-
+      EventBus.$on('trace_load_will_fail', payload => {
+        this.$notify.error("Failed to load trace " + payload)
+      });
       this.arrow_keys_will_become_disabled()
     },
     methods: {
@@ -61,6 +64,8 @@
         'step_back_out',
         'step_out_backwards',
         'step_out_forward',
+
+        'will_open_local_trace'
       ]),
       ...mapMutations(['selected_index_will_change','will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
 
@@ -88,6 +93,7 @@
           'shift+g' : () => this.will_toggle_ui_panel('stack-graph.tooltip'),
           'shift+s' : () => this.will_toggle_ui_panel('main.sidebar'),
           'shift+i' : () => this.will_toggle_ui_panel('main.ignored_files'),
+          'shift+o' : () => this.will_open_local_trace(),
           's' : () => this.will_toggle_ui_panel('inspector.stack'),
           'i' : () => this.will_toggle_ui_panel('widgets.inspector'),
           'v' : () => this.will_toggle_ui_panel('inspector.variables'),

@@ -1,8 +1,9 @@
 <template>
   <div id="nav" class="elevation-03 p-2 d-flex justify-content-between">
     <div>
-      <el-button size="mini" icon="el-icon-more" class="mr-4" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
-
+      <el-button size="mini" title="Toggle Sidebar (Shift+s)" icon="el-icon-more" class="mr-2" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
+      <el-button size="mini" title="Open Local File (Shift+o)" icon="el-icon-upload" class="mr-4" @click="$refs.trace_file_input.click()"></el-button>
+      <input ref="trace_file_input" type="file" @change="will_open_local_trace($event)" v-show="false"></input>
       <pc-connection-status/>
     </div>
     <router-link to="/">Tracing</router-link>
@@ -110,7 +111,8 @@
 
     },
     methods: {
-      ...mapMutations(['will_toggle_ui_panel', 'toggle_ui_follow_cursor'])
+      ...mapMutations(['will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
+      ...mapActions(['will_open_local_trace'])
     },
   }
 </script>
