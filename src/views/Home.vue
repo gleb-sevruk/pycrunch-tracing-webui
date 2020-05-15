@@ -20,7 +20,6 @@
   // @ is an alias to /src
   import HelloWorld from '@/components/HelloWorld.vue'
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex'
-  import PcCodeViewer from './code/code-viewer.component'
   import PcTabbedEditor from './code/tabbed-editor.component'
   import PcClientConnections from './widgets/client-connections.component'
   import PcStatusBar from './code/top-status-bar.component'
@@ -93,7 +92,7 @@
           'shift+g' : () => this.will_toggle_ui_panel('stack-graph.tooltip'),
           'shift+s' : () => this.will_toggle_ui_panel('main.sidebar'),
           'shift+i' : () => this.will_toggle_ui_panel('main.ignored_files'),
-          'shift+o' : () => this.will_open_local_trace(),
+          'shift+o' : () => EventBus.$emit('user_will_open_file', {}),
           's' : () => this.will_toggle_ui_panel('inspector.stack'),
           'i' : () => this.will_toggle_ui_panel('widgets.inspector'),
           'v' : () => this.will_toggle_ui_panel('inspector.variables'),

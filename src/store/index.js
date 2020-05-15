@@ -139,14 +139,27 @@ export default new Vuex.Store({
         if (!selectedEvent) {
           return
         }
-        let newTop = selectedEvent.cursor.line * 22 - 100
+
+        let selector = 'a[name=line' + selectedEvent.cursor.line +"]"
+        let x = window.top.document.querySelectorAll(selector)
+        if (x.length <= 0 ) {
+        //  todo retry
+        //  no such element
+          return
+        }
+
+        let line_element = x[0]
+        let newTop = line_element.offsetTop - 100
+        // console.log(x)
+
+
         let scrollTop = window.scrollY
-        let up_treshold = scrollTop - 200
+        let up_treshold = scrollTop - 100
         if (up_treshold < 0) {
           up_treshold = 0
         }
 
-        let down_treshold = scrollTop + 100
+        let down_treshold = scrollTop + 200
         let needScroll = false
         let newTopLessTres = newTop < up_treshold
         let newTopGreaterDown = newTop > down_treshold

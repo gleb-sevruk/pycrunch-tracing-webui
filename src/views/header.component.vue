@@ -2,7 +2,7 @@
   <div id="nav" class="elevation-03 p-2 d-flex justify-content-between">
     <div>
       <el-button size="mini" title="Toggle Sidebar (Shift+s)" icon="el-icon-more" class="mr-2" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
-      <el-button size="mini" title="Open Local File (Shift+o)" icon="el-icon-upload" class="mr-4" @click="$refs.trace_file_input.click()"></el-button>
+      <el-button size="mini" title="Open Local File (Shift+o)" icon="el-icon-upload" class="mr-4" @click="did_click_on_file_selection"></el-button>
       <input ref="trace_file_input" type="file" @change="will_open_local_trace($event)" v-show="false"></input>
       <pc-connection-status/>
     </div>
@@ -72,6 +72,7 @@
 <script>
   import PcConnectionStatus from '../components/connection-status.component'
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
+  import {EventBus} from '../shared/event-bus'
 
   function autoGets (panel_name) {
     return {
@@ -112,8 +113,16 @@
     },
     methods: {
       ...mapMutations(['will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
-      ...mapActions(['will_open_local_trace'])
+      ...mapActions(['will_open_local_trace']),
+      did_click_on_file_selection() {
+        this.$refs.trace_file_input.click()
+      },
     },
+    mounted (): void {
+      EventBus.$on('user_will_open_file', payload => {
+        this.did_click_on_file_selection()
+      });
+    }
   }
 </script>
 
