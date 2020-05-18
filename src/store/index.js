@@ -293,10 +293,9 @@ export default new Vuex.Store({
           context.commit('file_did_load', payload )
 
         })
-
         context.commit('update_filtered_events')
         context.commit('selected_index_will_change', 0)
-        // console.log(zalupa)
+        EventBus.$emit('new_file_did_load', {})
       };
 
       reader.readAsArrayBuffer(file);

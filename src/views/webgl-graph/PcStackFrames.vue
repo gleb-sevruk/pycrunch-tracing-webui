@@ -170,8 +170,8 @@
     },
     watch : {
       selected_event(old, new_value) {
-      console.log('updated')
-      this.draw_needle()
+        console.log('updated')
+        this.draw_needle()
       }
     },
     methods: {
@@ -625,13 +625,17 @@
         state.app.ticker.stop()
         if (state.is_scoped()) {
           this.scope_to_method(state.span.start.event, state.span.end.event, self)
-
         } else {
           this.render_event_graph(self)
         }
 
         state.app.ticker.start()
 
+      });
+      EventBus.$on('new_file_did_load', payload => {
+        state.app.ticker.stop()
+        this.render_event_graph(self)
+        state.app.ticker.start()
       });
 
       this.initialize_and_draw()
