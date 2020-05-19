@@ -19,7 +19,7 @@ let style_function = new PIXI.TextStyle({
   fill: "white",
 
 });
-let style_pidr = new PIXI.TextStyle({
+let style_anim = new PIXI.TextStyle({
   fontFamily: "Arial",
   fontSize: 18,
   fill: "#006900",
@@ -30,6 +30,6 @@ let hoverColor = Color("#279f00").rgbNumber()
 export default  {
   style_function: style_function,
   style: style,
-  style_pidr: style_pidr,
+  style_anim: style_anim,
   hover_color: hoverColor
 }

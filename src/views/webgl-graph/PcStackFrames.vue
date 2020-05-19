@@ -12,6 +12,9 @@
   </div>
 </template>
 <script>
+  // Probably this file could be rewritten using object/component architecture (As in matrix game)
+  // instead of putting this to single file
+
   import * as PIXI from 'pixi.js'
   import { Viewport } from 'pixi-viewport'
   import {CodeEvent} from '../../store/models'
@@ -179,7 +182,7 @@
       demo_animation: function (prev) {
         state.viewport.removeChildren()
         let full_text = 'ti pidr'
-        let message = new PIXI.Text('t', styles.style_pidr);
+        let message = new PIXI.Text('t', styles.style_anim);
         message.resolution = 2
         message.position.set(prev.ts, 10);
         state.viewport.addChild(message);
@@ -194,12 +197,12 @@
             message.text = 'wake up'
           }
           if (accum % 100 > 40) {
-            message.text = 'wake up, pidor...'
+            message.text = 'wake up, Neo...'
           }
           if (accum % 200 > 150) {
-            message.text = 'wake up, pidor... Matrix has you'
+            message.text = 'wake up, Neo... Matrix has you'
           }
-          // style_pidr.fill = 0xff0000 + (accum / 10000)
+          // style_anim.fill = 0xff0000 + (accum / 10000)
 
           // rotate the container!
           // use delta to create frame-independent transform
@@ -463,9 +466,7 @@
           .moveTo(0, line_top)
           .lineTo(last_timestamp, line_top);
 
-        let total_marks = Math.round(last_timestamp / 1000)
-
-
+        let total_marks = Math.round(last_timestamp / 1000) + 1
 
         for (let index = 0; index <= total_marks; index++) {
           let color = 0xffffff
@@ -481,7 +482,6 @@
           time_mark.lineStyle(line_w /2, 0xffffff)
             .moveTo(x, line_top)
             .lineTo(x, mark_bot);
-
         }
       },
       redraw_all: function (self) {
@@ -539,15 +539,18 @@
         let self = this
         state.size = new Size(1000, 1000)
         state.win_size = new Size(window.innerWidth, window.innerHeight)  // 50vh
+        var ratio = state.win_size.width /state.win_size.height
+
         this.$refs.js_pixie_container.addEventListener('wheel', e => {
           e.preventDefault()
         }, {passive: false})
+        // h / 2 looks for me as a hack and source of all the evil.
         var app = new PIXI.Application(
           {
             // forceCanvas: true,
             antialias: true,
             width: state.win_size.width,
-            height: state.win_size.height
+            height: state.win_size.height / 2
           });
         let viewport = new Viewport({
           screenWidth: state.win_size.width,
@@ -663,7 +666,7 @@
 <style scoped lang="scss">
   @import "../../styles/colors";
   .pixie--root {
-    bottom: 30px;
+    /*bottom: 30px;*/
   }
   .pixie--container {
     width: 100%;

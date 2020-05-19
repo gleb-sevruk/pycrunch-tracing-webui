@@ -1,6 +1,6 @@
 <template>
   <div class="elevation-03  fixed-bottom">
-    Ignored files
+    Ignored files (Shift+i)
 
     <div class="files">
     <div v-for="folder in ui.folder_filters"><el-button @click="unignore_folder(folder)">(directory) {{folder}}</el-button></div>

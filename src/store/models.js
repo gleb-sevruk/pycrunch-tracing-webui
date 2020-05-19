@@ -93,7 +93,7 @@ function default_widgets (): Array<UiWidget> {
   add_widget('inspector.variables')
   add_widget('main.stack-frames', false)
   add_widget('stack-graph.tooltip', true)
-  add_widget('stack-graph.render_stats', true)
+  add_widget('stack-graph.render_stats', false)
 
   return array
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-control">
+  <div class="code-surface" :class="is_panel_visible('main.stack-frames') ? 'code-surface--virtual-bottom-space' : ''">
 
     <div class="container-fluid">
       <div class="row">
@@ -110,5 +110,8 @@
 
   .file-editor {
     /*width: 500px;*/
+  }
+  .code-surface--virtual-bottom-space {
+    margin-bottom: calc(50vh );
   }
 </style>
