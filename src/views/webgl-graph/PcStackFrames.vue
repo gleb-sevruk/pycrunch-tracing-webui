@@ -325,30 +325,42 @@
         }
       },
       invalidate_display_stats: function () {
-        this.display_render_state.world_size.width = _render_state.viewport.width + treshold
-        this.display_render_state.world_size.height = _render_state.viewport.height + treshold
+        function round (x) {
+          return Math.round((x + Number.EPSILON) * 100) / 100
+        }
+        this.display_render_state.world_size.width = round(_render_state.viewport.width )
+        this.display_render_state.world_size.height = round(_render_state.viewport.height)
         let visibleBounds = state.viewport.getVisibleBounds()
-        this.display_render_state.visible_area.width = visibleBounds.width
-        this.display_render_state.visible_area.height = visibleBounds.height
-        this.display_render_state.visible_area.x = visibleBounds.x
-        this.display_render_state.visible_area.y = visibleBounds.y
-        this.display_render_state.visible_area.scale = state.viewport.scale.x
+        this.display_render_state.visible_area.width = round(visibleBounds.width)
+        this.display_render_state.visible_area.height = round(visibleBounds.height)
+        this.display_render_state.visible_area.x = round(visibleBounds.x)
+        this.display_render_state.visible_area.y = round(visibleBounds.y)
+        this.display_render_state.visible_area.scale = round(state.viewport.scale.x)
 
       },
       invalidate_viewport_configuration: function () {
+        // let my_h = _render_state.viewport.height  + treshold
+        // my_h = 200
+        let my_h = _render_state.viewport.height * 1.8
         state.viewport.resize(
           state.win_size.width,
           state.win_size.height,
-          _render_state.viewport.width + treshold,
-          _render_state.viewport.height  + treshold
+          _render_state.viewport.width,
+          my_h
         )
-        state.viewport.clamp({direction: 'all'})
+
+        // height > width = width : height
         state.viewport.clampZoom({
-          direction: 'all',
-          maxWidth: _render_state.viewport.width + treshold,
-          minHeight: 80,
+
+          // maxHeight: _render_state.viewport.height ,
+          maxWidth: _render_state.viewport.width + 200,
+          minHeight: 180,
+
           // maxHeight: _render_state.viewport.height * 3 + treshold
+          // maxHeight: my_h
         })
+        state.viewport.clamp({direction: 'all', underflow: 'center' })
+
 
         this.invalidate_display_stats()
       },
@@ -430,7 +442,8 @@
           this.draw_single_event(current_index, self)
         }
         _render_state.viewport_size_will_change(
-          total_time_here * state.scale_factor, _render_state.max_y +  _render_state.global_offset
+          total_time_here * state.scale_factor,
+          _render_state.max_y +  _render_state.global_offset
         )
         this.draw_stats()
 
