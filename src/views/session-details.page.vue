@@ -10,11 +10,11 @@
 
     <h6 class="mt-5">Included Files</h6>
     <div class="small text-secondary">Files included in recording</div>
-    <div v-for="file in current_session.files_in_session">{{file}}</div>
+    <div v-for="file in current_session.files_in_session.sort()">{{file}}</div>
 
     <h6 class="mt-5">Excluded Files</h6>
     <div class="small text-secondary">Files ignored during tracing</div>
-    <div v-for="file in current_session.excluded_files">{{file}}</div>
+    <div v-for="file in current_session.excluded_files.sort()">{{file}}</div>
   </div>
 </template>
 
