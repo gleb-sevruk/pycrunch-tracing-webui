@@ -3,14 +3,15 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import io from 'socket.io-client'
 import {parents, short} from '../views/code/short-filename'
-import { FileWithId, parse_files_with_contents, parse_protobuf_datastream } from './protobuf_message_parsing'
+import { FileWithId, parse_files_with_contents_from_pb, parse_protobuf_datastream } from './protobuf_message_parsing'
 import {CodeEvent, CodeFile, LiveTracker, ProfileDetails, TracingSession, UiState} from './models'
 import global_state from './global_state'
 import {seek_back_in_current_method, seek_step_out_backwards,
   seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
 
 import {EventBus} from '../shared/event-bus'
-import { FileHeader, FileSection } from './tracer-binary.file'
+import { FileHeader, FileSection, Version } from './tracer-binary.file'
+import { read_binary_file } from '../binary-format/parsing'
 
 Vue.use(Vuex)
 
@@ -48,6 +49,9 @@ export default new Vuex.Store({
       payload.profiles.forEach((_: string) => {
         state.profiles.push(_)
       })
+    },
+    session_metadata_did_load(state: MyState, metadata: TracingSession) {
+      state.current_session = metadata
     },
     session_will_load (state: MyState, session_name: string) {
       let currentSession = state.tracing_sessions.find((_: TracingSession) => _.short_name === session_name)
@@ -219,97 +223,8 @@ export default new Vuex.Store({
       let name = file.name
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        function read_uint64 (from_data_view : DataView, at_offset: number) {
-          // const bytes = new Uint8Array([ 0xff,0xff,0xff,0xff,   0xff,0xff,0xff,0xff ]);
-          // split 64-bit number into two 32-bit numbers
-
-          // combine the 2 32-bit numbers using max 32-bit val 0xffffffff
-          let right = from_data_view.getUint32(at_offset)  // 4294967295
-          let left = from_data_view.getUint32(at_offset + 4) // 4294967295
-          return left + 2 ** 32 * right
-        }
-        global_state.entire_command_buffer.length = 0
-        global_state.all_stacks.length = 0
-
         let buffer : ArrayBuffer = e.target.result
-        let total_length = buffer.byteLength
-        let z = new DataView(buffer)
-        let header_size = 4
-        let offset = 0
-        // signature
-
-        let h = new FileHeader()
-
-        let signature = z.getInt32(offset)
-        if (signature !== h.magic) {
-          console.error('File signature is invalid')
-          EventBus.$emit('trace_load_will_fail', name)
-          return
-        }
-        offset += 4
-        h.header_size = z.getInt32(offset)
-        offset += 4
-
-        const event_stream_end_offset = read_uint64(z, offset)
-        offset += 8
-
-        const files_byte_len = read_uint64(z, offset)
-        h.files_section = new FileSection('files', event_stream_end_offset + 4, files_byte_len)
-
-        offset += 8
-        // 8 = 4 sig + 4 header len
-        offset = h.header_size + 8
-        signature = z.getInt32(offset)
-        if (signature !== h.magic) {
-          console.error('Trailing file signature is invalid')
-          EventBus.$emit('trace_load_will_fail', name)
-          return
-        }
-        offset += 4
-
-        h.events_section = new FileSection('events', offset, event_stream_end_offset - offset)
-
-        while (offset < h.events_section.offset + h.events_section.length) {
-
-          // (get_payment_methods) should be: 115981
-          let chunk_size = z.getInt32(offset)
-          offset += header_size
-
-          let slice = buffer.slice(offset , offset + chunk_size)
-
-          let msg = parse_protobuf_datastream(slice)
-
-          global_state.entire_command_buffer.push(...msg.command_buffer)
-          global_state.all_stacks.push(...msg.stacks)
-
-          msg.files.forEach((_: FileWithId) =>  {
-            global_state.files[_.id] = _.file
-          })
-
-          offset += chunk_size
-
-        }
-        // files
-        offset += header_size
-        let slice = buffer.slice(h.files_section.offset, h.files_section.offset + h.files_section.length)
-        let msg = parse_files_with_contents(slice)
-        msg.files_contents.forEach(_ => {
-          let enc = new TextDecoder();
-
-          let contents = 'File cannot be loaded...'
-          if (_.contents) {
-            contents = enc.decode(_.contents)
-          }
-          let payload = {
-            filename: global_state.file_at(_.id),
-            contents: contents
-          }
-          context.commit('file_did_load', payload )
-
-        })
-        context.commit('update_filtered_events')
-        context.commit('selected_index_will_change', 0)
-        EventBus.$emit('new_file_did_load', {})
+        read_binary_file(context, name, buffer)
       };
 
       reader.readAsArrayBuffer(file);

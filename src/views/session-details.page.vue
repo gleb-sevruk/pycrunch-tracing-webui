@@ -2,7 +2,7 @@
   <div class="about elevation-02 min-vh-100 p-3 pl-5">
     <h1>Session Details</h1>
 <!--    <div>{{current_session}}</div>-->
-    <div>{{current_session.short_name}}</div>
+    <div>{{current_session.name}}</div>
     <div class="small">{{current_session.events_in_session}} Events</div>
     <div class="small text-secondary">{{current_session.name}}</div>
     <div class="small text-secondary">{{current_session.file_size_on_disk}}</div>

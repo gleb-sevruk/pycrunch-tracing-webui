@@ -126,7 +126,7 @@ export function parse_protobuf_datastream (payload: any): ParsedTimeline {
 }
 
 
-export function parse_files_with_contents (payload: any): ParsedTimeline {
+export function parse_files_with_contents_from_pb (payload: any): ParsedTimeline {
   let parsed = new ParsedTimeline()
 
   let xx = messages.FilesInSession.deserializeBinary(payload)

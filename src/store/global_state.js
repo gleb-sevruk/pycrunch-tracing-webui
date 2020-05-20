@@ -14,6 +14,22 @@ class global {
   file_at(index: number) : string {
     return this.files[index]
   }
+
+  /**
+   * Removes all data from global state
+   * @return void
+   */
+  clear() {
+    this.entire_command_buffer.length = 0
+    this.all_stacks.length = 0
+  }
+
+  add_to_command_buffer(events: Array<CodeEvent>) {
+    this.entire_command_buffer.push(...events)
+  }
+  add_stacks(stacks: Array<StackFrame>) {
+    this.all_stacks.push(...stacks)
+  }
 }
 
 let global1 = new global()
