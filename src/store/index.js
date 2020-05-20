@@ -10,6 +10,7 @@ import {seek_back_in_current_method, seek_step_out_backwards,
   seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
 
 import {EventBus} from '../shared/event-bus'
+import { FileHeader, FileSection } from './tracer-binary.file'
 
 Vue.use(Vuex)
 
@@ -218,6 +219,15 @@ export default new Vuex.Store({
       let name = file.name
       const reader = new FileReader();
       reader.onload = (e: any) => {
+        function read_uint64 (from_data_view : DataView, at_offset: number) {
+          // const bytes = new Uint8Array([ 0xff,0xff,0xff,0xff,   0xff,0xff,0xff,0xff ]);
+          // split 64-bit number into two 32-bit numbers
+
+          // combine the 2 32-bit numbers using max 32-bit val 0xffffffff
+          let right = from_data_view.getUint32(at_offset)  // 4294967295
+          let left = from_data_view.getUint32(at_offset + 4) // 4294967295
+          return left + 2 ** 32 * right
+        }
         global_state.entire_command_buffer.length = 0
         global_state.all_stacks.length = 0
 
@@ -227,34 +237,39 @@ export default new Vuex.Store({
         let header_size = 4
         let offset = 0
         // signature
+
+        let h = new FileHeader()
+
         let signature = z.getInt32(offset)
-        if (signature !== 15051991) {
+        if (signature !== h.magic) {
           console.error('File signature is invalid')
           EventBus.$emit('trace_load_will_fail', name)
           return
         }
         offset += 4
-        let file_header_size = z.getInt32(offset)
+        h.header_size = z.getInt32(offset)
         offset += 4
-        // const bytes = new Uint8Array([ 0xff,0xff,0xff,0xff,   0xff,0xff,0xff,0xff ]);
-        // split 64-bit number into two 32-bit numbers
-        const right = z.getUint32(offset);  // 4294967295
-        const left = z.getUint32(offset + 4); // 4294967295
+
+        const event_stream_end_offset = read_uint64(z, offset)
         offset += 8
 
-        // combine the 2 32-bit numbers using max 32-bit val 0xffffffff
-        const event_stream_end_offset = left + 2**32*right;
+        const files_byte_len = read_uint64(z, offset)
+        h.files_section = new FileSection('files', event_stream_end_offset + 4, files_byte_len)
 
-
-        offset = file_header_size + 8
+        offset += 8
+        // 8 = 4 sig + 4 header len
+        offset = h.header_size + 8
         signature = z.getInt32(offset)
-        if (signature !== 15051991) {
+        if (signature !== h.magic) {
           console.error('Trailing file signature is invalid')
           EventBus.$emit('trace_load_will_fail', name)
           return
         }
         offset += 4
-        while (offset < event_stream_end_offset) {
+
+        h.events_section = new FileSection('events', offset, event_stream_end_offset - offset)
+
+        while (offset < h.events_section.offset + h.events_section.length) {
 
           // (get_payment_methods) should be: 115981
           let chunk_size = z.getInt32(offset)
@@ -275,9 +290,8 @@ export default new Vuex.Store({
 
         }
         // files
-        let files_chunk_size = z.getInt32(offset)
         offset += header_size
-        let slice = buffer.slice(offset)
+        let slice = buffer.slice(h.files_section.offset, h.files_section.offset + h.files_section.length)
         let msg = parse_files_with_contents(slice)
         msg.files_contents.forEach(_ => {
           let enc = new TextDecoder();
