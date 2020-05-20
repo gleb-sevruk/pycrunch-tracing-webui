@@ -10,11 +10,11 @@
 
     <h6 class="mt-5">Included Files</h6>
     <div class="small text-secondary">Files included in recording</div>
-    <div v-for="file in current_session.files_in_session.sort()">{{file}}</div>
+    <div v-for="file in sorted_files()">{{file}}</div>
 
     <h6 class="mt-5">Excluded Files</h6>
     <div class="small text-secondary">Files ignored during tracing</div>
-    <div v-for="file in current_session.excluded_files.sort()">{{file}}</div>
+    <div v-for="file in sorted_excluded()">{{file}}</div>
   </div>
 </template>
 
@@ -34,7 +34,24 @@
     },
     methods: {
       ...mapMutations(['selected_index_will_change']),
+      sorted_files() {
+        if (!this.current_session.files_in_session) {
+          return []
+        }
+        let slice = this.current_session.files_in_session.slice()
+        slice.sort()
+        return slice
+      },
+      sorted_excluded() {
+        if (!this.current_session.excluded_files) {
+          return []
+        }
+        let slice = this.current_session.excluded_files.slice()
 
+        slice.sort()
+
+        return slice
+      },
     },
   }
 </script>
