@@ -24,6 +24,7 @@ import './styles/main.scss';
 
 Vue.use(ElementUI);
 Vue.use(VueHotkey)
+Vue.use(require('vue-moment'));
 
 
 Vue.config.productionTip = false

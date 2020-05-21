@@ -3,17 +3,19 @@
     <h1>Session Details</h1>
 <!--    <div>{{current_session}}</div>-->
     <div>{{current_session.name}}</div>
+    <div class="small mt-4">{{current_session.start_time | moment("MMMM Do YYYY, h:mm:ss a")}} ({{current_session.start_time | moment("from", "now") }} ) </div>
+
     <div class="small">{{current_session.events_in_session}} Events</div>
     <div class="small text-secondary">{{current_session.name}}</div>
     <div class="small text-secondary">{{current_session.file_size_on_disk}}</div>
 
 
     <h6 class="mt-5">Included Files</h6>
-    <div class="small text-secondary">Files included in recording</div>
+    <div class="small text-secondary">Files included in recording ({{sorted_files().length}})</div>
     <div v-for="file in sorted_files()">{{file}}</div>
 
     <h6 class="mt-5">Excluded Files</h6>
-    <div class="small text-secondary">Files ignored during tracing</div>
+    <div class="small text-secondary">Files ignored during tracing  {{sorted_excluded().length}}</div>
     <div v-for="file in sorted_excluded()">{{file}}</div>
   </div>
 </template>
