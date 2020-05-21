@@ -16,7 +16,7 @@
     </div>
     <div class="col-12 ml-3 dict-renderer " v-if="has_childs">
 
-      <pc-single-variable v-for="v in childs" :variable="v">
+      <pc-single-variable v-for="(v, index) in childs" :key="index" :variable="v">
       </pc-single-variable>
     </div>
   </div>
@@ -51,7 +51,7 @@
                 return 'dict'
               }
             } catch (e) {
-              console.log('ERROR SUKA', value)
+              console.log('Error During parsing of dictionary', value)
             }
           }
         }
@@ -73,7 +73,6 @@
             // console.log("obj." + prop + " = " + obj[prop]);
             result.push(new Variable(prop, obj[prop]))
           }
-          // obj.forEach(_ => result.push(new VariableValue('zalupa', _)))
           return result
         }
         if (value_type === 'array' || value_type === 'object') {

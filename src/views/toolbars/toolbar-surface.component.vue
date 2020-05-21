@@ -16,7 +16,7 @@
       Ignore File
       <el-dropdown-menu slot="dropdown">
         <template v-if="dropdown_visible">
-          <el-dropdown-item :command="s" v-for="s in ignore_suggestions" >{{s}}</el-dropdown-item>
+          <el-dropdown-item :command="s" v-for="s in ignore_suggestions" :key="s">{{s}}</el-dropdown-item>
         </template>
       </el-dropdown-menu>
     </el-dropdown>

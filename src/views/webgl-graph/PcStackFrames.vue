@@ -120,12 +120,11 @@
       }
     }
     should_draw_text (time_diff: number) {
-      // todo decision should be based upon current scale/scope
       let microseconds = 50
       return time_diff > microseconds
     }
     viewport_size_will_change(width: number, height: number) {
-      this.viewport =new Size(width, height)
+      this.viewport = new Size(width, height)
     }
   }
 
@@ -271,7 +270,6 @@
         _render_state.perf.new_box()
 
 
-        // todo use pixi TextMetrics
         if (_render_state.should_draw_text(time_diff)) {
           let skip_filename = false
           if (_render_state.stack.length > 0) {
@@ -467,25 +465,29 @@
         let mark_bot = 10
         time_line.lineStyle(line_w, 0xffffff)
           .moveTo(0, line_top)
-          .lineTo(last_timestamp, line_top);
+          .lineTo(last_timestamp * state.scale_factor, line_top);
 
-        let total_marks = Math.round(last_timestamp / 1000) + 1
+        let total_marks = Math.round((last_timestamp / 1000)) + 1
 
-        for (let index = 0; index <= total_marks; index++) {
-          let color = 0xffffff
-          if (index === total_marks - 1 || index === 0) {
-            color = 0xffffff
+        function draw_ticks () {
+          for (let index = 0; index <= total_marks; index++) {
+            let color = 0xffffff
+            if (index === total_marks - 1 || index === 0) {
+              color = 0xffffff
+            }
+            //   |----------------?--------|
+            let time_mark = new PIXI.Graphics();
+            viewport.addChild(time_mark);
+            time_mark.position.set(index * state.scale_factor, -10);
+            let percentage_x = index / total_marks
+            let x = lerp((percentage_x * last_timestamp) * state.scale_factor, last_timestamp * state.scale_factor)
+            time_mark.lineStyle(line_w / 2, 0xffffff)
+              .moveTo(x * state.scale_factor, line_top)
+              .lineTo(x * state.scale_factor, mark_bot);
           }
-        //   |----------------?--------|
-          let time_mark = new PIXI.Graphics();
-          viewport.addChild(time_mark);
-          time_mark.position.set(index, -10);
-          let percentage_x = index / total_marks
-          let x = lerp(percentage_x * last_timestamp, last_timestamp)
-          time_mark.lineStyle(line_w /2, 0xffffff)
-            .moveTo(x, line_top)
-            .lineTo(x, mark_bot);
         }
+
+        draw_ticks()
       },
       redraw_all: function (self) {
         this.render_event_graph(self)
