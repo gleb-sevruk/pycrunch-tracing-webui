@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
+import Meta from 'vue-meta'
+
 import './shared/array_utilities';
 
 import router from './router'
+Vue.use(Meta)
 
 import store from './store'
 

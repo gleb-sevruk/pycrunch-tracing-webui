@@ -29,9 +29,22 @@
   import PcStackFrames from './webgl-graph/PcStackFrames'
   import {EventBus} from '../shared/event-bus'
 
+  const browserTitle = 'PyCrunch Tracing'
 
   export default {
     name: 'Home',
+    metaInfo () {
+      // DO NOT Move this inside arrow function, as reactive updates will not work
+      let session_name = null
+      if (this.current_session) {
+        session_name = this.current_session.name
+      }
+      return {
+        titleTemplate: () => {
+          return session_name ? `${session_name} | ${browserTitle}` : browserTitle
+        },
+      }
+    },
     components: {
       PcStackFrames,
       PcIgnoredFiles,
@@ -79,7 +92,7 @@
     },
     computed: {
       ...mapGetters(['total_events','is_panel_visible']),
-      ...mapState(['x', 'selected_event',  'is_connected']),
+      ...mapState(['x', 'current_session', 'selected_event',  'is_connected']),
       keymap () {
         return {
           'left': this.debug_previous_line,
