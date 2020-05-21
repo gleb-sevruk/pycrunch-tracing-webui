@@ -343,8 +343,11 @@
       },
       invalidate_viewport_configuration: function () {
         // let my_h = _render_state.viewport.height  + treshold
-        // my_h = 200
+        // my_h = 200R
         let my_h = _render_state.viewport.height * 1.8
+        if (my_h < state.win_size.height) {
+          my_h = state.win_size.height
+        }
         state.viewport.resize(
           state.win_size.width,
           state.win_size.height,
@@ -357,12 +360,12 @@
 
           // maxHeight: _render_state.viewport.height ,
           maxWidth: _render_state.viewport.width + 200,
-          minHeight: 180,
+          minHeight: 190,
 
           // maxHeight: _render_state.viewport.height * 3 + treshold
           // maxHeight: my_h
         })
-        state.viewport.clamp({direction: 'all', underflow: 'center' })
+        state.viewport.clamp({direction: 'all', underflow: 'center'})
 
 
         this.invalidate_display_stats()
