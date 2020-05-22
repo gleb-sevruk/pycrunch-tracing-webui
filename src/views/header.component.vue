@@ -4,15 +4,15 @@
       <el-button size="mini" title="Toggle Sidebar (Shift+s)" icon="el-icon-more" class="mr-2" @click="will_toggle_ui_panel('main.sidebar')"></el-button>
       <el-button size="mini" title="Open Local File (Shift+o)" icon="el-icon-upload" class="mr-4" @click="did_click_on_file_selection"></el-button>
       <input ref="trace_file_input" type="file" @change="will_open_local_trace($event)" v-show="false"></input>
-      <pc-connection-status/>
+<!--      <pc-connection-status/>-->
     </div>
     <router-link to="/">Tracing</router-link>
     <router-link to="/session-details">
       Session Details
     </router-link>
-    <router-link to="/configuration">
-      Configuration
-    </router-link>
+<!--    <router-link to="/configuration">-->
+<!--      Configuration-->
+<!--    </router-link>-->
     <div class="right-buttons">
 
 

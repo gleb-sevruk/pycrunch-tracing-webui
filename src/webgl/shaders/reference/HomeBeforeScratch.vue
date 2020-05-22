@@ -29,7 +29,6 @@
 
 <script>
   // @ is an alias to /src
-  import HelloWorld from '@/components/HelloWorld.vue'
   import {mapState} from 'vuex'
   import * as utils from '../../../utils'
   import {Point, PrimitivesFactory} from '../../primitives'

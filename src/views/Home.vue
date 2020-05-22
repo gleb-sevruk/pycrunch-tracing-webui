@@ -18,7 +18,6 @@
 
 <script>
   // @ is an alias to /src
-  import HelloWorld from '@/components/HelloWorld.vue'
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex'
   import PcTabbedEditor from './code/tabbed-editor.component'
   import PcClientConnections from './widgets/client-connections.component'
@@ -59,7 +58,6 @@
       }
     },
     mounted (): void {
-      this.connect()
       EventBus.$on('trace_load_will_fail', payload => {
         this.$notify.error("Failed to load trace " + payload)
       });
@@ -67,7 +65,6 @@
     },
     methods: {
       ...mapActions([
-        'connect',
         'set_selected_index',
         'debug_previous_line',
         'debug_next_line',

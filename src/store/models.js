@@ -66,16 +66,6 @@ export class CodeEvent {
 
 }
 
-export class LiveTracker {
-  sid: string
-  version: string
-
-  constructor (sid, version: string) {
-    this.sid = sid
-    this.version = version
-  }
-}
-
 function default_widgets (): Array<UiWidget> {
   let array = []
   function add_widget (name: string, enabled: boolean = true) {
@@ -143,8 +133,6 @@ export class UiState {
   }
 
   is_filtered (command: CodeEvent) {
-    // debugger
-
     let file_id = command.cursor.file
     let file = global_state.file_at(file_id)
     for (let folder in this.folder_filters) {
@@ -180,8 +168,11 @@ export class UiState {
 
 export class TracingSession {
   name: string
-  metadata: any
-  short_name: string
+  start_time: Date
+  events_in_session: number
+  file_size_on_disk: string
+  files_in_session: Array<string>
+  excluded_files: Array<string>
 }
 
 export class ProfileDetails {

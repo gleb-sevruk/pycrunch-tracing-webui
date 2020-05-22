@@ -8,6 +8,7 @@
 </template>
 
 <script>
+  // not used
   import {mapState} from 'vuex'
 
   export default {
