@@ -7,9 +7,10 @@ import {CodeEvent, CodeFile, ProfileDetails, TracingSession, UiState} from './mo
 import global_state from './global_state'
 import {seek_back_in_current_method, seek_step_out_backwards,
   seek_step_out_forward, step_over_from_current_event} from './debugging-steper'
-
 import {EventBus} from '../shared/event-bus'
 import { read_binary_file } from '../binary-format/parsing'
+
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -166,6 +167,11 @@ export default new Vuex.Store({
       };
 
       reader.readAsArrayBuffer(file);
+    },
+    async open_remote_recording(context: ActionContext, recording_name: any) {
+      let x = await axios.get(recording_name + ".pycrunch-trace",
+        {responseType: 'arraybuffer'})
+      read_binary_file(context, recording_name, x.data)
     },
     unignore_file (context: ActionContext, filename: string) {
       context.commit('did_unignore_file', filename)

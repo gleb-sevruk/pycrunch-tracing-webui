@@ -62,6 +62,12 @@
         this.$notify.error("Failed to load trace " + payload)
       });
       this.arrow_keys_will_become_disabled()
+      let rq = this.$route.query
+      if (rq.open) {
+        if (rq.open === 'v0.1-interactive-demo') {
+          this.open_remote_recording(rq.open)
+        }
+      }
     },
     methods: {
       ...mapActions([
@@ -73,8 +79,8 @@
         'step_back_out',
         'step_out_backwards',
         'step_out_forward',
-
-        'will_open_local_trace'
+        'will_open_local_trace',
+        'open_remote_recording'
       ]),
       ...mapMutations(['selected_index_will_change','will_toggle_ui_panel', 'toggle_ui_follow_cursor']),
 
