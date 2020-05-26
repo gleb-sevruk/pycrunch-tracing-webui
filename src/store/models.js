@@ -1,3 +1,5 @@
+import { track } from '../shared/ga-events'
+
 export class ExecutionCursor {
   line: number
   file: string
@@ -161,6 +163,7 @@ export class UiState {
     let optional: ?UiWidget = this.panels.find((_: UiWidget) => _.name === panel)
     if (optional) {
       optional.is_visible = !optional.is_visible
+      track('ui', 'toggle_panel', optional.name, optional.is_visible)
     }
   }
 

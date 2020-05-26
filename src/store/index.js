@@ -11,6 +11,7 @@ import {EventBus} from '../shared/event-bus'
 import { read_binary_file } from '../binary-format/parsing'
 
 import axios from 'axios'
+import { track } from '../shared/ga-events'
 
 Vue.use(Vuex)
 
@@ -141,6 +142,7 @@ export default new Vuex.Store({
       follow_cursor_if_enabled(state)
     },
     will_toggle_ui_panel (state: MyState, panel_name: string) {
+
       state.ui.toggle_panel(panel_name)
     },
     toggle_ui_follow_cursor (state: MyState, payload) {
@@ -160,6 +162,7 @@ export default new Vuex.Store({
     will_open_local_trace(context: ActionContext, native_event: any) {
       const file = native_event.target.files[0];
       let name = file.name
+      track('open', 'will_open_local_trace', name)
       const reader = new FileReader();
       reader.onload = (e: any) => {
         let buffer : ArrayBuffer = e.target.result
@@ -169,6 +172,7 @@ export default new Vuex.Store({
       reader.readAsArrayBuffer(file);
     },
     async open_remote_recording(context: ActionContext, recording_name: any) {
+      track('open', 'open_remote_recording', recording_name)
       let x = await axios.get(recording_name + ".pycrunch-trace",
         {responseType: 'arraybuffer'})
       read_binary_file(context, recording_name, x.data)
