@@ -251,7 +251,7 @@
           sprite.tint = original_color
         });
         sprite.on('click', (event) => {
-          if (event.data.originalEvent.metaKey) {
+          if (event.data.originalEvent.metaKey || event.data.originalEvent.ctrlKey) {
             this.scope_to_method(span.start.event, span.end.event, self)
             this.invalidate_viewport_configuration()
             // state.viewport.fit()
