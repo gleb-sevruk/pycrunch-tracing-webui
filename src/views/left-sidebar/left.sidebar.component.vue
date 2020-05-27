@@ -16,8 +16,7 @@
     <div v-if="!current_session" class="single-session m-1 p-2 m-4 mb-4">
      <span>No session loaded. </span>
     </div>
-
-    </div>
+  </div>
 </template>
 
 <script>
@@ -30,7 +29,6 @@
     },
     methods: {
       ...mapActions(['load_session']),
-
     },
   }
 </script>

@@ -159,10 +159,8 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    will_open_local_trace(context: ActionContext, native_event: any) {
-      const file = native_event.target.files[0];
+    open_local_trace_from_file(context: ActionContext, file: any) {
       let name = file.name
-      track('open', 'will_open_local_trace', name)
       const reader = new FileReader();
       reader.onload = (e: any) => {
         let buffer : ArrayBuffer = e.target.result
@@ -170,6 +168,16 @@ export default new Vuex.Store({
       };
 
       reader.readAsArrayBuffer(file);
+    },
+    async will_drag_drop_local_trace(context: ActionContext, native_event: any) {
+      const file = native_event.dataTransfer.files[0]
+      track('open', 'will_drag_drop_local_trace', file.name)
+      await context.dispatch('open_local_trace_from_file', file)
+    },
+    async will_open_local_trace(context: ActionContext, native_event: any) {
+      const file = native_event.target.files[0];
+      track('open', 'will_open_local_trace', file.name)
+      await context.dispatch('open_local_trace_from_file', file)
     },
     async open_remote_recording(context: ActionContext, recording_name: any) {
       track('open', 'open_remote_recording', recording_name)
