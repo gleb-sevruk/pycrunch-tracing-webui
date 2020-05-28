@@ -64,9 +64,9 @@
       this.arrow_keys_will_become_disabled()
       let rq = this.$route.query
       if (rq.open) {
-        if (rq.open === 'v0.1-interactive-demo') {
-          this.open_remote_recording(rq.open)
-        }
+        // if (rq.open === 'v0.1-interactive-demo') {
+        this.open_remote_recording(rq.open)
+        // }
       }
     },
     methods: {
