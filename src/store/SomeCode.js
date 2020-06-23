@@ -10,14 +10,14 @@ class Marker {
 }
 
 class MethodCall {
-  typescript_blyadi: string = 'sosnuli'
+  typescript_is: string = 'no good'
   file_name : string
   method_name : string
   markers : Array<Marker> = []
 
   whats_up (): string {
 
-    return 'typescript_blyadi = ' + this.typescript_blyadi
+    return 'test = ' + this.typescript_is
   }
 }
 
