@@ -180,7 +180,6 @@
       ...mapMutations(['selected_index_will_change']),
       demo_animation: function (prev) {
         state.viewport.removeChildren()
-        let full_text = 'ti pidr'
         let message = new PIXI.Text('t', styles.style_anim);
         message.resolution = 2
         message.position.set(prev.ts, 10);
