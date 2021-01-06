@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@pixi/canvas-renderer": "^5.2.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "color": "^3.1.2",
     "core-js": "^3.6.4",
