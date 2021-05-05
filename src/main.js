@@ -2,6 +2,12 @@ import Vue from 'vue'
 import App from './App.vue'
 import Meta from 'vue-meta'
 
+
+require('monaco-editor');
+require('monaco-editor/esm/vs/basic-languages/_.contribution')
+require('monaco-editor/esm/vs/basic-languages/python/python')
+require('monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution')
+
 import './shared/array_utilities';
 
 import router from './router'

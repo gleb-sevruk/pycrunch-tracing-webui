@@ -3,14 +3,16 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-6">
-          <div class="file-editor">
-            <div v-for="line in lines" class="file__line" :class="line.is_selected ? 'file__line--highlighted elevation-03' : ''" >
-              <a :name="'line' + line.index"/>
-              <span class="file__line-number text-secondary">{{line.state}} {{line.index}}</span>
-              {{line.text}}
-            </div>
-          </div>
+        <div class="col-6 height-max">
+<!--          <div class="file-editor">-->
+<!--            <div v-for="line in lines" class="file__line" :class="line.is_selected ? 'file__line&#45;&#45;highlighted elevation-03' : ''" >-->
+<!--              <a :name="'line' + line.index"/>-->
+<!--              <span class="file__line-number text-secondary">{{line.state}} {{line.index}}</span>-->
+<!--              {{line.text}}-->
+<!--            </div>-->
+<!--          </div>-->
+          <MonacoEditor   class="editor" :value="this.selected_file && this.selected_file.contents" language="python" />
+
         </div>
         <div class="col-6">
 
@@ -26,11 +28,14 @@
 <script>
   import {mapGetters, mapState} from 'vuex'
   import PcRightToolbar from '../right-toolbar/right-toolbar.component'
+  import MonacoEditor from 'vue-monaco'
 
   export default {
     name: "pc-tabbed-editor",
     components: {
-      PcRightToolbar},
+      PcRightToolbar,
+      MonacoEditor,
+    },
 
     computed: {
       ...mapState(['files', 'selected_index', 'selected_event']),
@@ -66,7 +71,14 @@
 
     data () {
       return {
+        code: 'const noop = () => {}'
       }
+    },
+    mounted () {
+      var editor = monaco.editor.create(document.getElementById('container'), {
+        value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
+        language: 'javascript'
+      });
     },
     methods: {
       setSelected (file) {
@@ -108,6 +120,13 @@
     /*background: darken(#15522B, 10);*/
   }
 
+  .height-max {
+    height: 500px;
+  }
+  .editor {
+    width: 600px;
+    height: 800px;
+  }
   .file-editor {
     /*width: 500px;*/
   }

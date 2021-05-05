@@ -120,10 +120,8 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
 
   console.log(h)
   while (offset < total_length) {
-    console.log('offset', offset)
     // read next tlv
     tag = readInt32()
-    console.log('tag', tag)
     switch (tag) {
       case TRACE_TAG_EVENTS:
         let chunk_size = readInt32()
