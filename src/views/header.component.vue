@@ -16,6 +16,7 @@
     <div class="right-buttons">
 
 
+      <header-cloud-menu></header-cloud-menu>
       <el-popover
           placement="bottom"
           title="Settings"
@@ -73,6 +74,7 @@
   import PcConnectionStatus from '../components/connection-status.component'
   import {mapActions, mapGetters, mapMutations, mapState} from 'vuex'
   import {EventBus} from '../shared/event-bus'
+  import HeaderCloudMenu from '@/views/cloud/header-cloud-menu.buttons'
 
   function autoGets (panel_name) {
     return {
@@ -87,11 +89,14 @@
   }
   export default {
     name: "pc-header",
-    components: {PcConnectionStatus},
+    components: {
+      HeaderCloudMenu,
+      PcConnectionStatus},
     computed: {
 
       ...mapState(['tracing_sessions', 'ui']),
       ...mapGetters(['is_panel_visible']),
+      ...mapGetters('cloud', ['is_authenticated']),
       is_filename_panel_visible: autoGets('main.filename'),
       is_variables_panel_visible: autoGets('inspector.variables'),
       is_stack_visible:autoGets('inspector.stack'),

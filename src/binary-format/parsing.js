@@ -5,15 +5,45 @@ import { EventBus } from '../shared/event-bus'
 import { FileWithId, parse_files_with_contents_from_pb, parse_protobuf_datastream } from '../store/protobuf_message_parsing'
 import { ActionContext } from 'vuex'
 
-export function read_binary_file (context: ActionContext, name: string, buffer: ArrayBuffer) {
-  const TRACE_TAG_HEADER = 1
-  const TRACE_TAG_EVENTS = 2
-  const TRACE_TAG_FILES = 3
-  const TRACE_TAG_METADATA = 4
+export const TLV_TAGS = {
+   TRACE_TAG_HEADER : 1,
+   TRACE_TAG_EVENTS : 2,
+   TRACE_TAG_FILES : 3,
+   TRACE_TAG_METADATA : 4,
+}
+
+/**
+
+ *
+ * @param tags_to_read - array of tags to scan, ignore huge events chunks
+ * @param real_load - should state be mutated after loading
+ * @return {*}
+ */
+
+/**
+ * forEach for object
+ */
+export function read_binary_file (
+  context: ActionContext,
+  name: string,
+  buffer: ArrayBuffer,
+  tags_to_read: ?Array<string> = undefined,
+  real_load: boolean = true
+) {
+
+  //pre setup
+
+
 
   const HEADER_TAG_VERSION = 1
   const HEADER_TAG_FILES = 2
   const HEADER_TAG_METADATA = 3
+
+  function readInt32 () {
+    let tag = z.getInt32(offset)
+    offset += 4
+    return tag
+  }
 
   function read_uint64 (from_data_view: DataView, at_offset: number) {
     // const bytes = new Uint8Array([ 0xff,0xff,0xff,0xff,   0xff,0xff,0xff,0xff ]);
@@ -26,9 +56,12 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
   }
 
   // transactional loading?
-  global_state.clear()
+  if (real_load){
+    global_state.clear()
+  }
 
   let total_length = buffer.byteLength
+  let json_metadata = null
   let z = new DataView(buffer)
   let header_size = 4
   let offset = 0
@@ -49,14 +82,7 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
   offset += 4
   let version = new Version()
 
-  function readInt32 () {
-    let tag = z.getInt32(offset)
-    offset += 4
-    return tag
-  }
-
-  if (tag === TRACE_TAG_HEADER) {
-
+  if (tag === TLV_TAGS.TRACE_TAG_HEADER) {
     h.header_size = z.getInt32(offset)
     offset += 4
     // HEADER START
@@ -118,14 +144,26 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
   offset += 4
   console.log('Signature verified')
 
-  console.log(h)
   while (offset < total_length) {
-    console.log('offset', offset)
+    // console.log('offset', offset)
     // read next tlv
     tag = readInt32()
-    console.log('tag', tag)
+    // console.log('tag', tag)
+
+    if (tags_to_read !== undefined) {
+      // console.log('we only want to read metadata')
+      // console.log('   tags_to_read !== undefined')
+
+      let should_skip_current_section = tags_to_read.indexOf(tag) < 0
+      if (should_skip_current_section) {
+        let unknown_package_size = readInt32()
+        offset += unknown_package_size
+        continue
+      }
+    }
+
     switch (tag) {
-      case TRACE_TAG_EVENTS:
+      case TLV_TAGS.TRACE_TAG_EVENTS:
         let chunk_size = readInt32()
 
         let slice = buffer.slice(offset, offset + chunk_size)
@@ -140,7 +178,7 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
 
         offset += chunk_size
         break
-      case TRACE_TAG_FILES:
+      case TLV_TAGS.TRACE_TAG_FILES:
         let chunk_size_files = readInt32()
 
         let slice_files = buffer.slice(offset, offset + chunk_size_files)
@@ -161,15 +199,17 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
         })
         offset += chunk_size_files
         break
-      case TRACE_TAG_METADATA:
+      case TLV_TAGS.TRACE_TAG_METADATA:
         let metadata_chunk_size = readInt32()
         let slice_metadata = buffer.slice(offset, offset + metadata_chunk_size)
         let enc = new TextDecoder()
         let contents = enc.decode(slice_metadata)
 
-        let x = JSON.parse(contents)
-        console.log(x)
-        context.commit('session_metadata_did_load', x)
+        json_metadata = JSON.parse(contents)
+
+        if (real_load) {
+          context.commit('session_metadata_did_load', json_metadata)
+        }
 
 
         offset += metadata_chunk_size
@@ -184,7 +224,11 @@ export function read_binary_file (context: ActionContext, name: string, buffer: 
     }
   }
 
-  context.commit('update_filtered_events')
-  context.commit('selected_index_will_change', 0)
-  EventBus.$emit('new_file_did_load', {})
+  if (real_load) {
+    context.commit('update_filtered_events')
+    context.commit('selected_index_will_change', 0)
+    EventBus.$emit('new_file_did_load', {})
+  }
+
+  return json_metadata
 }

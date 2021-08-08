@@ -12,6 +12,7 @@ import { read_binary_file } from '../binary-format/parsing'
 
 import axios from 'axios'
 import { track } from '../shared/ga-events'
+import moduleCloud from './cloud.module'
 
 Vue.use(Vuex)
 
@@ -35,6 +36,9 @@ function getState (): MyState {
 // url = 'http://127.0.0.1:8080'
 // let socket = io(url)
 export default new Vuex.Store({
+  modules: {
+    cloud: moduleCloud
+  },
   state: getState(),
   mutations: {
     session_metadata_did_load(state: MyState, metadata: TracingSession) {
@@ -288,12 +292,6 @@ export default new Vuex.Store({
 
 
   },
-  modules: {
-    // code_editor: {
-    //   state: {
-    //     selected_file: null
-    //   }
-    // },
-  },
+
   strict: true,
 })
