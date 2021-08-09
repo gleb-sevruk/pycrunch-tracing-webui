@@ -1,7 +1,10 @@
 <template>
   <div>
-    <el-progress v-if="progress.in_transit" :percentage="progress.percentage"> </el-progress>
+    <div v-if="progress.in_transit" class="please-wait__loading-recording">
 
+      <el-progress :percentage="progress.percentage"> </el-progress>
+      <el-button type="warning" @click="cancelRecordingLoading">Cancel download</el-button>
+    </div>
     <el-table
       :data="recordings"
       style="width: 100%">
@@ -107,6 +110,7 @@ export default {
         target: 0,
         percentage: 0,
         in_transit: false,
+        cancellation_token: null,
       },
     }
   },
@@ -114,36 +118,51 @@ export default {
   methods: {
     ...mapActions('cloud', ['load_recordings']),
     ...mapActions(['open_trace_from_array_buffer']),
-
+    cancelRecordingLoading () {
+      this.progress.cancellation_token.cancel()
+    },
     async willDeleteRecording (row: Recording) {
       let x = await axios.delete(API_ROOT + '/recordings/' + row.id)
       this.$notify.info(`Recording ${row.name} removed successfully.`)
       await this.load_recordings()
     },
     async openRecording (row) {
-      let x = await axios.post(`${API_ROOT}/recordings/${row.id}/generate-download-url`)
-      if (!x.data.href) {
-        console.warn('Cannot get a link for recording')
-        return
-      }
-      let s3 = x.data.href
-      console.log(s3)
       this.progress.in_transit = true
-      let response = await
-          axios.get(
-              s3,
-              {
-                responseType: 'arraybuffer',
-                onDownloadProgress: (evt: ProgressEvent) => {
-                  this.progress.current = evt.loaded
-                  this.progress.target = evt.total
-                  this.progress.percentage = Math.round((evt.loaded / evt.total) * 100)
-                }
-              },
-          )
+      this.progress.current = 0
+      this.progress.percentage = 0
+      this.progress.target = 100
+      try {
+        let x = await axios.post(`${API_ROOT}/recordings/${row.id}/generate-download-url`)
+        if (!x.data.href) {
+          console.warn('Cannot get a link for recording')
+          return
+        }
+        let s3 = x.data.href
+        console.log(s3)
+        const cancelTokenSource = axios.CancelToken.source()
+        this.progress.cancellation_token = cancelTokenSource
 
-      this.open_trace_from_array_buffer(response.data)
-      this.progress.in_transit = false
+        let response = await
+            axios.get(
+                s3,
+                {
+                  responseType: 'arraybuffer',
+                  onDownloadProgress: (evt: ProgressEvent) => {
+                    this.$nextTick(() => {
+                      this.progress.current = evt.loaded
+                      this.progress.target = evt.total
+                      this.progress.percentage = Math.round((evt.loaded / evt.total) * 100)
+                    })
+                  },
+                  cancelToken: cancelTokenSource.token,
+                },
+            )
+
+        this.open_trace_from_array_buffer(response.data)
+        await this.$router.push('/')
+      } finally {
+        this.progress.in_transit = false
+      }
 
       // FileDownload(response.data, 'report.csv');
     },

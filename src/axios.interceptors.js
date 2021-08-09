@@ -59,7 +59,7 @@ function createAxiosResponseInterceptor() {
         return axios(error.config);
       }).catch(error => {
         cleanUpOutdatedJWTs()
-        Router.push('/sign-in')
+        Router.push('/')
         return Promise.reject(error)
       }).finally(createAxiosResponseInterceptor)
     }

@@ -1,6 +1,9 @@
 <template>
   <div class="cloud-lib">
-    <h4 class="mt-2 p-2 ml-3">Cloud Library</h4>
+    <div class="d-flex  align-items-center">
+      <h4 class="mt-2 p-4 0">Cloud Library</h4>
+      <pc-cloud-storage-usage class="font-size-small" hide-plan></pc-cloud-storage-usage>
+    </div>
     <pc-upload-recording></pc-upload-recording>
 
     <div class="recording-surface bg-apple-gray-3 min-vh-100 m-3 mt-2 rounded  m-5 px-5">
@@ -20,10 +23,11 @@ import { mapState, mapActions } from 'vuex'
 import axios from 'axios'
 import PcCloudRecordingsTable from '@/views/cloud/cloud-recordings-table.component'
 import PcUploadRecording from '@/views/cloud/upload/upload-recording.component'
+import PcCloudStorageUsage from '@/views/cloud/cloud-storage-usage.component'
 
 export default {
   name: 'cloud-library.page',
-  components: { PcUploadRecording, PcCloudRecordingsTable },
+  components: { PcCloudStorageUsage, PcUploadRecording, PcCloudRecordingsTable },
   data () {
     return {
       recording_name: '',

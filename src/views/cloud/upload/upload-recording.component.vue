@@ -1,5 +1,5 @@
 <template>
-  <div class="new-rec-upload mt-5 bg-apple-gray-4 elevation-03 m-5 px-5 py-4">
+  <div class="new-rec-upload  bg-apple-gray-4 elevation-03 mx-5 my-0 px-5 py-4">
     <h6>Upload existing recording<span v-if="has_file"> -> Verify and upload</span></h6>
     <div v-show="!has_file">
       <label>Select a file for the recording:</label>
@@ -48,7 +48,7 @@
         </div>
         <div v-if="progress.upload_completed" class="d-flex justify-content-end align-items-end">
 
-          <el-button type="success" @click="goToRecordings">Go to my recordings</el-button>
+          <el-button  type="success" @click="goToRecordings">Go to my recordings</el-button>
         </div>
 
       </el-dialog>

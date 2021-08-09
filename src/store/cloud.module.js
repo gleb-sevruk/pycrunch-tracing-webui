@@ -3,7 +3,7 @@
 import { API_ROOT } from '../config'
 import axios from 'axios'
 import Vuex, { ActionContext, Module } from 'vuex'
-import { getAccessToken, setJwtAccess } from '../auth/localStorageShim'
+import { cleanUpOutdatedJWTs, getAccessToken, setJwtAccess } from '../auth/localStorageShim'
 
 export class Recording {
   name: string
@@ -45,6 +45,11 @@ const moduleCloud : Module = {
       _state.access_token = newToken
       setJwtAccess(newToken)
       _state.is_logged_in = newToken != null
+    },
+    logOut (_state: CloudState, dummy: any) {
+      _state.access_token = null
+      cleanUpOutdatedJWTs()
+      _state.is_logged_in = false
     },
     did_load_recordings (_state: CloudState, recordings: any) {
       _state.recordings.length = 0
