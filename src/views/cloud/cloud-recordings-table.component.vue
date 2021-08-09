@@ -1,5 +1,8 @@
 <template>
-  <el-table
+  <div>
+    <el-progress v-if="progress.in_transit" :percentage="progress.percentage"> </el-progress>
+
+    <el-table
       :data="recordings"
       style="width: 100%">
 
@@ -12,13 +15,25 @@
         prop="recording_date"
         sortable
         label="Recording Date"
-        width="380">
+        width="260">
       <template slot-scope="scope">
         <span>
-          <span v-if="scope.row.recording_date">{{ scope.row.recording_date | moment('MMMM Do YYYY, h:mm:ss a') }} ({{
-              scope.row.recording_date | moment('from', 'now')
-            }} )</span>
+          <span v-if="scope.row.recording_date">{{ scope.row.recording_date | moment('MMMM Do YYYY, h:mm:ss a') }}
+            </span>
           <span v-else>-</span>
+          </span>
+      </template>
+    </el-table-column>
+    <el-table-column
+        prop="recording_date"
+        label=""
+        width="150">
+      <template slot-scope="scope">
+        <span>
+          <span v-if="scope.row.recording_date">{{
+              scope.row.recording_date | moment('from', 'now')
+            }} </span>
+          <span v-else></span>
           </span>
       </template>
     </el-table-column>
@@ -42,7 +57,7 @@
       <template slot-scope="scope">
         <el-dropdown
             type="info"
-            @command="userClickedMore(scope.$index, scope.row)"
+            @command="userClickedMore(scope.$index, scope.row, $event)"
         >
           <el-button icon="el-icon-more">
           </el-button>
@@ -65,13 +80,17 @@
           </el-dropdown-menu>
         </el-dropdown>
 
-           </template>
+      </template>
     </el-table-column>
   </el-table>
+  </div>
 </template>
 
 <script>
-import filesize from 'file-size'
+import { Recording } from '@/store/cloud.module'
+import axios from 'axios'
+import { API_ROOT } from '@/config'
+import { mapActions } from 'vuex'
 
 export default {
   props: {
@@ -81,17 +100,64 @@ export default {
       required: true,
     },
   },
+  data () {
+    return {
+      progress: {
+        current: 0,
+        target: 0,
+        percentage: 0,
+        in_transit: false,
+      },
+    }
+  },
   name: 'pc-cloud-recordings-table',
   methods: {
-    humanSize (bytes) {
-      if (!bytes) {
-        return '-'
+    ...mapActions('cloud', ['load_recordings']),
+    ...mapActions(['open_trace_from_array_buffer']),
+
+    async willDeleteRecording (row: Recording) {
+      let x = await axios.delete(API_ROOT + '/recordings/' + row.id)
+      this.$notify.info(`Recording ${row.name} removed successfully.`)
+      await this.load_recordings()
+    },
+    async openRecording (row) {
+      let x = await axios.post(`${API_ROOT}/recordings/${row.id}/generate-download-url`)
+      if (!x.data.href) {
+        console.warn('Cannot get a link for recording')
+        return
       }
-      return filesize(bytes).human()
+      let s3 = x.data.href
+      console.log(s3)
+      this.progress.in_transit = true
+      let response = await
+          axios.get(
+              s3,
+              {
+                responseType: 'arraybuffer',
+                onDownloadProgress: (evt: ProgressEvent) => {
+                  this.progress.current = evt.loaded
+                  this.progress.target = evt.total
+                  this.progress.percentage = Math.round((evt.loaded / evt.total) * 100)
+                }
+              },
+          )
+
+      this.open_trace_from_array_buffer(response.data)
+      this.progress.in_transit = false
+
+      // FileDownload(response.data, 'report.csv');
     },
-    userClickedMore (index, row) {
-      console.log('userClickedMore i', row, index)
-    },
+    async userClickedMore (index, row, command) {
+      if (command === 'delete') {
+        await this.willDeleteRecording(row)
+      }
+      if (command === 'open') {
+        await this.openRecording(row)
+
+      }
+      console.log('userClickedMore i', row, index, command)
+    }
+    ,
   },
 }
 </script>

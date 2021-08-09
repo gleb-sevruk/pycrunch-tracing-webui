@@ -163,6 +163,10 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    open_trace_from_array_buffer(context: ActionContext, buffer: any) {
+      // let buffer : ArrayBuffer = e.target.result
+      read_binary_file(context, 'open_trace_from_array_buffer', buffer)
+    },
     open_local_trace_from_file(context: ActionContext, file: any) {
       let name = file.name
       const reader = new FileReader();

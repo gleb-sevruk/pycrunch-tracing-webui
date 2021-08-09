@@ -12,14 +12,11 @@ import { cleanUpOutdatedJWTs, getAccessToken } from '@/auth/localStorageShim'
 
 axios.interceptors.request.use(
   reqConfig => {
-    console.log(reqConfig)
-    console.log(reqConfig.baseURL)
-    console.log(API_ROOT)
+    console.log(reqConfig.url)
     if (!reqConfig.url.startsWith(API_ROOT)) {
       // it means we are calling s3 api or something
       return reqConfig
     }
-    reqConfig.baseURL
     let access = getAccessToken()
     if (access) {
       reqConfig.headers.authorization = 'Bearer ' + access;
@@ -33,7 +30,7 @@ function createAxiosResponseInterceptor() {
   const interceptor = axios.interceptors.response.use(
     response => response,
     error => {
-      if (error instanceof axios.Cancel) {
+      if (error.response === undefined) {
         return Promise.reject(error);
       }
 

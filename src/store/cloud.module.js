@@ -5,7 +5,7 @@ import axios from 'axios'
 import Vuex, { ActionContext, Module } from 'vuex'
 import { getAccessToken, setJwtAccess } from '../auth/localStorageShim'
 
-class Recording {
+export class Recording {
   name: string
   id: string
   size_in_bytes: number
@@ -53,17 +53,6 @@ const moduleCloud : Module = {
   },
   actions: {
     async load_recordings (_context: ActionContext, params: any) {
-      function headersFromState (state: CloudState) {
-        if (!state.access_token) {
-          return {}
-        }
-
-        return {
-          'Authorization': +`Bearer ${state.access_token}`,
-        }
-
-      }
-
       let x = await axios.get(_context.state.api_url + '/recordings')
 
       _context.commit('did_load_recordings', x.data)

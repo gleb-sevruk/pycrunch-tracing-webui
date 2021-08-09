@@ -6,7 +6,7 @@
     <div class="recording-surface bg-apple-gray-3 min-vh-100 m-3 mt-2 rounded  m-5 px-5">
 
       <div class="recordings-list" v-loading="loading">
-        <h6>My Recordings</h6>
+        <h6 class="pt-4 pb-2">My Recordings</h6>
         <pc-cloud-recordings-table v-if="!loading" :recordings="recordings"></pc-cloud-recordings-table>
 
       </div>

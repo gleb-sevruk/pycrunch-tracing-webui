@@ -62,6 +62,7 @@
 import axios from 'axios'
 import { read_binary_file, TLV_TAGS } from '@/binary-format/parsing'
 import { API_ROOT } from '@/config'
+import { mapActions } from 'vuex'
 
 export const isDefined = (val) => {
   return val !== undefined && val !== null
@@ -87,6 +88,8 @@ export default {
     }
   },
   methods: {
+    ...mapActions('cloud', ['load_recordings']),
+
     goToRecordings () {
       this.dialog_open = false
       this.has_file = false
@@ -95,6 +98,7 @@ export default {
       input1.value = ''
 
       this.progress.upload_completed = false
+      this.$nextTick(async () => await this.load_recordings())
     },
     beforeCloseModal(done) {
       if (this.progress.upload_completed) {
