@@ -11,6 +11,7 @@ export class Recording {
   size_in_bytes: number
   total_events: number
   recording_date: string
+  upload_date: string
 }
 
 export class CloudState {

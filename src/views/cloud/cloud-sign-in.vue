@@ -31,9 +31,9 @@
     </div>
 
     <div v-if="!is_authenticated" class="sign-in text-center mt-5">
-      <div class="text-secondary">Sign-in or register using the button bellow to start for free</div>
-
-      <el-button @click="initiateSignIn()" class="mt-4 google__button bg-white text-danger font-roboto google-shadow">
+      <div v-if="!loading" class="text-secondary">Sign-in or register using the button bellow to start for free</div>
+      <el-icon class="font-size-3" v-if="loading" size="" name="loading" ></el-icon>
+      <el-button v-if="!loading" @click="initiateSignIn()" class="mt-4 google__button bg-white text-danger font-roboto google-shadow">
         <img class="mr-2" src="../../assets/google_icon@2x.png" width="18" height="18">
         Sign in with Google
       </el-button>
@@ -51,6 +51,11 @@ import PcCloudStorageUsage from '@/views/cloud/cloud-storage-usage.component'
 export default {
   name: 'pc-cloud-sign-in',
   components: { PcCloudStorageUsage },
+  data () {
+    return {
+      loading: false,
+    }
+  },
   computed: {
     ...mapState('cloud', ['api_url', 'access_token', 'is_authenticated']),
     ...mapGetters('cloud', ['is_authenticated']),
@@ -69,6 +74,7 @@ export default {
     },
     async initiateSignIn () {
       try {
+        this.loading = true
         const authCode = await this.$gAuth.getAuthCode()
         console.log(1)
         const response = await axios.post(this.api_url + '/one-time-token', {
@@ -84,7 +90,10 @@ export default {
         }
 
       } catch (e) {
-        console.log('wtf', e)
+        console.log('error while signing via google:', e)
+      }
+      finally {
+        this.loading = false
       }
 
     },
