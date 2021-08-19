@@ -14,6 +14,11 @@ export class Recording {
   upload_date: string
 }
 
+export class CloudProfile {
+  used_bytes: number
+  available_bytes: number
+}
+
 export class CloudState {
   is_logged_in: boolean = false
   api_url: string = API_ROOT
@@ -21,6 +26,8 @@ export class CloudState {
   access_token: ?string = null
   refresh_token: ?string = null
   recordings: Array<Recording> = []
+  shared_recordings: Array<Recording> = []
+  profile: ?CloudProfile = null
 }
 
 //
@@ -56,13 +63,28 @@ const moduleCloud : Module = {
       _state.recordings.length = 0
       _state.recordings.push(...recordings)
     },
+    did_load_shared_recordings (_state: CloudState, recordings: any) {
+      _state.shared_recordings.length = 0
+      _state.shared_recordings.push(...recordings)
+    },
+    did_load_profile (_state: CloudState, profile: any) {
+      _state.profile = profile
+    },
   },
   actions: {
     async load_recordings (_context: ActionContext, params: any) {
       let x = await axios.get(_context.state.api_url + '/recordings')
+      let y = await axios.get(_context.state.api_url + '/shared-recordings')
 
       _context.commit('did_load_recordings', x.data)
+      _context.commit('did_load_shared_recordings', y.data)
     },
+    async load_profile (_context: ActionContext, params: any) {
+      let x = await axios.get(_context.state.api_url + '/me')
+
+      _context.commit('did_load_profile', x.data)
+    },
+
   },
   getters: {
     is_authenticated: (_state: CloudState) => {

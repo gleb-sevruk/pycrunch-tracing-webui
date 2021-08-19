@@ -111,10 +111,10 @@
               <el-dropdown-item :command="'download'">
                 Download
               </el-dropdown-item>
-              <el-dropdown-item :command="'share'">
+              <el-dropdown-item v-if="!sharedMode" :command="'share'">
                 Share...
               </el-dropdown-item>
-              <el-dropdown-item divided :command="'delete'">
+              <el-dropdown-item v-if="!sharedMode"  divided :command="'delete'">
                 Delete
               </el-dropdown-item>
 
@@ -129,7 +129,7 @@
       </el-table-column>
     </el-table>
     <el-dialog :visible.sync="sharing_modal_visible" title="Sharing options">
-      <pc-recording-sharing v-if="sharing_modal_visible" ></pc-recording-sharing>
+      <pc-recording-sharing :recording_id="selected_recording_id" v-if="sharing_modal_visible" ></pc-recording-sharing>
     </el-dialog>
   </div>
 </template>
@@ -146,14 +146,19 @@ export default {
   props: {
     recordings: {
       type: Array,
-      default: null,
       required: true,
     },
+    sharedMode: {
+      type: Boolean,
+      default: false,
+    },
+
   },
   data () {
     return {
       useUploadDate: false,
       sharing_modal_visible: false,
+      selected_recording_id: null,
       progress: {
         current: 0,
         target: 0,
@@ -240,8 +245,6 @@ export default {
         }
         this.progress.in_transit = false
       }
-
-      // FileDownload(response.data, 'report.csv');
     },
     async userClickedMore (index, row, command) {
       if (command === 'delete') {
@@ -256,6 +259,7 @@ export default {
       }
 
       if (command === 'share') {
+        this.selected_recording_id = row.id
         this.sharing_modal_visible = true
       }
 

@@ -26,8 +26,9 @@
 
     </div>
     <el-dialog title="Upload selected trace"
-               :close-on-click-modal="false"
+
                :before-close="beforeCloseModal"
+               :close-on-click-modal="false"
                :close-on-press-escape="false"
                :show-close="!progress.in_transit"
                :visible.sync="dialog_open"

@@ -11,7 +11,9 @@
         <h6 class="pt-4 pb-2">My Recordings <span v-if="recordings">({{recordings.length}})</span></h6>
 
         <pc-cloud-recordings-table  v-loading="loading"  :recordings="recordings"></pc-cloud-recordings-table>
-
+        <h6 class="pt-5 pb-0">Shared with Me <span v-if="shared_recordings">({{shared_recordings.length}})</span></h6>
+        <pc-cloud-recordings-table :sharedMode="true" v-if="shared_recordings.length > 0" v-loading="loading"  :recordings="shared_recordings"></pc-cloud-recordings-table>
+        <div v-if="!loading && shared_recordings.length === 0" class="text-secondary text-center">There is nothing shared with you yet</div>
       </div>
 
     </div>
@@ -25,9 +27,18 @@ import PcCloudRecordingsTable from '@/views/cloud/cloud-recordings-table.compone
 import PcUploadRecording from '@/views/cloud/upload/upload-recording.component'
 import PcCloudStorageUsage from '@/views/cloud/cloud-storage-usage.component'
 
+const browserTitle = 'PyCrunch Tracing'
+
 export default {
   name: 'cloud-library.page',
   components: { PcCloudStorageUsage, PcUploadRecording, PcCloudRecordingsTable },
+  metaInfo () {
+    return {
+      titleTemplate: () => {
+        return `Cloud Library | ${browserTitle}`
+      },
+    }
+  },
   data () {
     return {
       recording_name: '',
@@ -36,16 +47,17 @@ export default {
   },
   async mounted () {
     this.loading = true
+    await this.load_profile()
     await this.load_recordings()
     this.loading = false
 
   },
   computed: {
-    ...mapState('cloud', ['access_token', 'api_url', 'recordings']),
+    ...mapState('cloud', ['access_token', 'api_url', 'recordings', 'shared_recordings']),
 
   },
   methods: {
-    ...mapActions('cloud', ['load_recordings']),
+    ...mapActions('cloud', ['load_recordings', 'load_profile']),
   },
 }
 </script>
