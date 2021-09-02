@@ -171,13 +171,12 @@ export default {
   },
   name: 'pc-cloud-recordings-table',
   methods: {
-    ...mapActions('cloud', ['load_recordings']),
+    ...mapActions('cloud', ['load_recordings', 'load_profile']),
     ...mapActions(['open_trace_from_array_buffer']),
     cancelRecordingLoading () {
       this.progress.cancellation_token.cancel()
     },
     async willDeleteRecording (row) {
-      console.log('sss2')
       try {
         await this.$confirm('Are you sure you want to remove trace file?', `Removing ${row.name}`)
       }
@@ -188,6 +187,7 @@ export default {
       let x = await axios.delete(API_ROOT + '/recordings/' + row.id)
       this.$notify.success(`Recording ${row.name} removed successfully.`)
       await this.load_recordings()
+      await this.load_profile()
     },
     redirectToTraceView: async function () {
       if (this.$route.matched[0].name !== 'Home') {

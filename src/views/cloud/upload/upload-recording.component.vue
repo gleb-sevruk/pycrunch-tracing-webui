@@ -113,7 +113,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('cloud', ['load_recordings']),
+    ...mapActions('cloud', ['load_recordings', 'load_profile']),
     nativeDrop(event) {
       // This is to prevent listener action inside App.vue
       event.stopPropagation()
@@ -245,9 +245,18 @@ export default {
 
         response = await axios.post(API_ROOT + `/recordings/${new_recording.id}/upload-completed`)
         this.progress.upload_completed = true
-        this.$nextTick(async () => await this.load_recordings())
+        this.$nextTick(async () => {
+          await this.load_recordings()
+          await this.load_profile()
+            }
+        )
 
       } catch (e) {
+        if (e.response) {
+          this.$notify.error(e.response.data.detail)
+        }
+        console.log('type of', typeof e)
+
         console.log('Upload to S3 failed with error:', e)
         return
       } finally {

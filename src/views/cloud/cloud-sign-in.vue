@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex'
+import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import PcCloudStorageUsage from '@/views/cloud/cloud-storage-usage.component'
@@ -68,6 +68,7 @@ export default {
   },
   methods: {
     ...mapMutations('cloud', ['set_access_token', 'logOut']),
+    ...mapActions('cloud', ['load_profile']),
     willStartLogOut() {
       this.logOut()
       this.$router.push('/')
@@ -98,6 +99,15 @@ export default {
 
     },
   },
+  async mounted () {
+    try {
+      await this.load_profile()
+    }
+    catch {
+
+    }
+
+  }
 }
 </script>
 
