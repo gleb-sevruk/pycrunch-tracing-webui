@@ -24,5 +24,15 @@ npm run build
 npm run test:unit
 ```
 
+### Deployment
+
+```shell
+  ssh root@app.pytrace.com
+  cd code/pycrunch-tracing-webui/
+  git pull
+  npm run build
+  cp -a /root/code/pycrunch-tracing-webui/dist/. /var/www/app.pytrace.com/html/
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
