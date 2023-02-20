@@ -16,7 +16,8 @@
     <div class="right-buttons">
 
 
-      <header-cloud-menu></header-cloud-menu>
+<!--      TODO: [Cloud] -->
+<!--      <header-cloud-menu></header-cloud-menu>-->
       <el-popover
           placement="bottom"
           title="Settings"

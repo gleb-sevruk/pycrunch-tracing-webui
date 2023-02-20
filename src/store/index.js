@@ -12,7 +12,7 @@ import { read_binary_file } from '../binary-format/parsing'
 
 import axios from 'axios'
 import { track } from '@/shared/ga-events'
-import moduleCloud from './cloud.module'
+// import moduleCloud from './cloud.module'
 import { Loading } from 'element-ui';
 import { loaderServiceOptions } from '@/shared/preloader'
 
@@ -39,7 +39,7 @@ function getState (): MyState {
 // let socket = io(url)
 export default new Vuex.Store({
   modules: {
-    cloud: moduleCloud
+    // cloud: moduleCloud
   },
   state: getState(),
   mutations: {
