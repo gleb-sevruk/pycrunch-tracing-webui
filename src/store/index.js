@@ -11,7 +11,10 @@ import {EventBus} from '../shared/event-bus'
 import { read_binary_file } from '../binary-format/parsing'
 
 import axios from 'axios'
-import { track } from '../shared/ga-events'
+import { track } from '@/shared/ga-events'
+// import moduleCloud from './cloud.module'
+import { Loading } from 'element-ui';
+import { loaderServiceOptions } from '@/shared/preloader'
 
 Vue.use(Vuex)
 
@@ -35,6 +38,9 @@ function getState (): MyState {
 // url = 'http://127.0.0.1:8080'
 // let socket = io(url)
 export default new Vuex.Store({
+  modules: {
+    // cloud: moduleCloud
+  },
   state: getState(),
   mutations: {
     session_metadata_did_load(state: MyState, metadata: TracingSession) {
@@ -159,17 +165,30 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    open_trace_from_array_buffer(context: ActionContext, buffer: any) {
+      // let buffer : ArrayBuffer = e.target.result
+      read_binary_file(context, 'open_trace_from_array_buffer', buffer)
+    },
     open_local_trace_from_file(context: ActionContext, file: any) {
+      let loadingInstance = Loading.service(loaderServiceOptions);
+
       let name = file.name
       const reader = new FileReader();
       reader.onload = (e: any) => {
         let buffer : ArrayBuffer = e.target.result
+        try {
+
+        }
+        finally {
+          loadingInstance.close();
+        }
         read_binary_file(context, name, buffer)
       };
 
       reader.readAsArrayBuffer(file);
     },
     async will_drag_drop_local_trace(context: ActionContext, native_event: any) {
+
       const file = native_event.dataTransfer.files[0]
       track('open', 'will_drag_drop_local_trace', file.name)
       await context.dispatch('open_local_trace_from_file', file)
@@ -288,12 +307,6 @@ export default new Vuex.Store({
 
 
   },
-  modules: {
-    // code_editor: {
-    //   state: {
-    //     selected_file: null
-    //   }
-    // },
-  },
+
   strict: true,
 })

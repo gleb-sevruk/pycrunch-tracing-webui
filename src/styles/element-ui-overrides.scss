@@ -1,0 +1,17 @@
+@import "_colors";
+
+.el-loading-mask {
+  background-color: transparentize($color-apple-gray-5, 0.1);
+}
+
+.el-upload {
+
+}
+.el-upload-dragger {
+  background-color: $color-apple-gray-4
+
+}
+
+.el-icon-copy-document:before {
+  content: "\e718";
+}

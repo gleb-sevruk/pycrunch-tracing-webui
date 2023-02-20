@@ -19,6 +19,11 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/session-details.page')
   },
+  {
+    path: '/cloud-library',
+    name: 'cloud-library',
+    component: () => import(/* webpackChunkName: "cloud" */ '../views/cloud/cloud-library.page')
+  },
 ]
 
 const router = new VueRouter({

@@ -2,6 +2,7 @@
 
 [include]
 
+
 [libs]
 <PROJECT_ROOT>/node_modules/*
 
@@ -9,5 +10,7 @@
 
 [options]
 module.system.node.resolve_dirname=node_modules
+module.name_mapper='^@' -> '<PROJECT_ROOT>/src'
+
 
 [strict]

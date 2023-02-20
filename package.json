@@ -10,14 +10,18 @@
   },
   "dependencies": {
     "@pixi/canvas-renderer": "^5.2.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "color": "^3.1.2",
     "core-js": "^3.6.4",
     "element-theme-dark": "^1.0.3",
-    "element-ui": "^2.13.0",
+    "element-ui": "^2.15.5",
+    "file-size": "^1.0.0",
     "google-protobuf": "~3.11.4",
     "jquery": "^3.4.1",
+    "jwt-decode": "^3.1.2",
+    "minio": "^7.0.18",
+    "moment": "^2.26.0",
     "pixi-viewport": "^4.10.0",
     "pixi.js": "^5.2.1",
     "popper.js": "^1.16.1",
@@ -26,10 +30,11 @@
     "socket.io-client": "^2.3.0",
     "v-hotkey": "^0.8.0",
     "vue": "^2.6.11",
+    "vue-google-oauth2": "^1.5.8",
     "vue-meta": "^2.3.3",
     "vue-moment": "^4.1.0",
     "vue-router": "^3.1.5",
-    "vuex": "^3.1.2"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
