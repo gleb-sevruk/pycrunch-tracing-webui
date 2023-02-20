@@ -124,7 +124,7 @@ export default {
   line-height: 2.5em;
   list-style: '-   ';
 }
-
+/* This is per Google guidelines */
 .font-roboto {
   font-family: Roboto, sans-serif !important;
 
