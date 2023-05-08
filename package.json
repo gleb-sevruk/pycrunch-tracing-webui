@@ -20,7 +20,7 @@
     "google-protobuf": "~3.11.4",
     "jquery": "^3.4.1",
     "jwt-decode": "^3.1.2",
-    "minio": "^7.0.18",
+    "minio": "^7.1.0",
     "moment": "^2.26.0",
     "pixi-viewport": "^4.10.0",
     "pixi.js": "^5.2.1",
