@@ -47,7 +47,7 @@ metadata:
   namespace: pycrunch
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    acme.cert-manager.io/http01-ingress-class: public
 spec:
   ingressClassName: public
   tls:
