@@ -1,0 +1,54 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main, master]
+
+env:
+  REGISTRY: core.harbor.a0488.space
+  IMAGE: core.harbor.a0488.space/pycrunch/app-pytrace
+
+jobs:
+  build:
+    name: Build & Push image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.TAG }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Set image tag
+        id: tag
+        run: echo "TAG=${{ env.IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.tag.outputs.TAG }}
+            ${{ env.IMAGE }}:latest
+
+  deploy:
+    name: Rollout to Kubernetes
+    runs-on: self-hosted
+    needs: build
+
+    steps:
+      - name: Update deployment image
+        run: |
+          kubectl set image deployment/app-pytrace \
+            app-pytrace=${{ needs.build.outputs.image_tag }} \
+            -n pycrunch
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/app-pytrace -n pycrunch

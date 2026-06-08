@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-pytrace
+  namespace: pycrunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-pytrace
+  template:
+    metadata:
+      labels:
+        app: app-pytrace
+    spec:
+      imagePullSecrets:
+        - name: harbor-registry-secret
+      containers:
+        - name: app-pytrace
+          image: core.harbor.a0488.space/pycrunch/app-pytrace:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-pytrace
+  namespace: pycrunch
+spec:
+  selector:
+    app: app-pytrace
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-pytrace
+  namespace: pycrunch
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - app.pytrace.com
+      secretName: app-pytrace-com-tls
+  rules:
+    - host: app.pytrace.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-pytrace
+                port:
+                  number: 80
