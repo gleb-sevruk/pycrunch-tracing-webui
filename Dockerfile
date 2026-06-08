@@ -1,10 +1,9 @@
 FROM node:16-alpine AS builder
-ENV NODE_OPTIONS=--openssl-legacy-provider
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
